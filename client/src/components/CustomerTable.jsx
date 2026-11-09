@@ -50,22 +50,22 @@ export default function CustomerTable({ customers = [] }) {
     switch (status) {
       case 'active':
         return (
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
             <span>Active</span>
           </span>
         );
       case 'past_due':
         return (
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-rose-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-600" />
             <span>Past Due</span>
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-zinc-500">
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded border border-zinc-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
             <span>Canceled</span>
           </span>
         );
@@ -74,12 +74,12 @@ export default function CustomerTable({ customers = [] }) {
 
   return (
     <div className="linear-card tile-hover-shadow rounded-xl p-5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.06] gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-zinc-200 gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-white tracking-tight">
+          <h2 className="text-sm font-bold text-black tracking-tight">
             Customer Directory
           </h2>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-zinc-500 mt-0.5">
             Showing {filtered.length} of {customers.length} total subscribers
           </p>
         </div>
@@ -88,7 +88,7 @@ export default function CustomerTable({ customers = [] }) {
         <div className="flex items-center space-x-2">
           <button
             onClick={handleExportCSV}
-            className="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium rounded-lg bg-zinc-900 border border-white/[0.08] hover:border-white/[0.16] text-zinc-300 hover:text-white transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-700 hover:text-black transition-colors shadow-xs"
             title="Download customer list as CSV"
           >
             <Download className="w-3.5 h-3.5" />
@@ -98,7 +98,7 @@ export default function CustomerTable({ customers = [] }) {
       </div>
 
       {/* Filter Tabs by Status */}
-      <div className="flex items-center space-x-1 mt-3 pb-2 border-b border-white/[0.04] overflow-x-auto">
+      <div className="flex items-center space-x-1 mt-3 pb-2 border-b border-zinc-100 overflow-x-auto">
         {[
           { id: 'all', label: 'All', count: counts.all },
           { id: 'active', label: 'Active', count: counts.active },
@@ -110,12 +110,12 @@ export default function CustomerTable({ customers = [] }) {
             onClick={() => setStatusFilter(tab.id)}
             className={`flex items-center space-x-1.5 px-2.5 py-0.5 text-[11px] font-medium rounded-md transition-colors ${
               statusFilter === tab.id
-                ? 'bg-white/[0.08] text-white font-medium'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'bg-zinc-900 text-white font-semibold'
+                : 'text-zinc-600 hover:text-black hover:bg-zinc-100'
             }`}
           >
             <span>{tab.label}</span>
-            <span className="text-[10px] font-mono text-zinc-500">
+            <span className={`text-[10px] font-mono ${statusFilter === tab.id ? 'text-zinc-300' : 'text-zinc-400'}`}>
               {tab.count}
             </span>
           </button>
@@ -126,7 +126,7 @@ export default function CustomerTable({ customers = [] }) {
       <div className="overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0">
         <table className="w-full text-left text-xs min-w-[520px]">
           <thead>
-            <tr className="border-b border-white/[0.06] text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">
+            <tr className="border-b border-zinc-200 text-zinc-500 text-[10px] font-bold uppercase tracking-wider">
               <th className="py-2.5 px-3">Subscriber</th>
               <th className="py-2.5 px-3">Plan</th>
               <th className="py-2.5 px-3">Status</th>
@@ -134,27 +134,27 @@ export default function CustomerTable({ customers = [] }) {
               <th className="py-2.5 px-3 text-right">Joined</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/[0.04]">
+          <tbody className="divide-y divide-zinc-100">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan="5" className="py-10 text-center text-zinc-500 text-xs">
+                <td colSpan="5" className="py-10 text-center text-zinc-400 text-xs font-medium">
                   No subscribers match your filter.
                 </td>
               </tr>
             ) : (
               filtered.map((c) => (
-                <tr key={c.id} className="hover:bg-white/[0.02] transition-colors">
+                <tr key={c.id} className="hover:bg-zinc-50 transition-colors">
                   <td className="py-3 px-3">
-                    <p className="font-medium text-zinc-200 text-xs">{c.name}</p>
+                    <p className="font-bold text-zinc-950 text-xs">{c.name}</p>
                     <p className="text-zinc-500 text-[11px]">{c.email}</p>
                   </td>
-                  <td className="py-3 px-3 text-zinc-300 text-xs">
+                  <td className="py-3 px-3 text-zinc-700 text-xs font-medium">
                     {c.plan}
                   </td>
                   <td className="py-3 px-3">
                     {renderStatus(c.status)}
                   </td>
-                  <td className="py-3 px-3 text-right font-mono font-medium text-white tabular-nums text-xs">
+                  <td className="py-3 px-3 text-right font-mono font-bold text-black tabular-nums text-xs">
                     ${Number(c.mrrContribution).toFixed(2)}/mo
                   </td>
                   <td className="py-3 px-3 text-right text-zinc-500 font-mono text-xs">

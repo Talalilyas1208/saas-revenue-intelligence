@@ -22,14 +22,14 @@ const LicenseModal = lazy(() => import('./components/LicenseModal.jsx'));
 function SectionSkeleton({ height = 'h-64' }) {
   return (
     <div className={`linear-card rounded-xl p-5 ${height} flex flex-col justify-between animate-pulse`}>
-      <div className="flex items-center justify-between pb-3 border-b border-white/[0.04]">
-        <div className="h-4 w-36 bg-zinc-800 rounded" />
-        <div className="h-4 w-20 bg-zinc-800 rounded" />
+      <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
+        <div className="h-4 w-36 bg-zinc-200 rounded" />
+        <div className="h-4 w-20 bg-zinc-200 rounded" />
       </div>
       <div className="space-y-3 flex-1 flex flex-col justify-center">
-        <div className="h-3 w-full bg-zinc-800/60 rounded" />
-        <div className="h-3 w-5/6 bg-zinc-800/40 rounded" />
-        <div className="h-3 w-4/6 bg-zinc-800/30 rounded" />
+        <div className="h-3 w-full bg-zinc-100 rounded" />
+        <div className="h-3 w-5/6 bg-zinc-100/80 rounded" />
+        <div className="h-3 w-4/6 bg-zinc-100/60 rounded" />
       </div>
     </div>
   );
@@ -54,7 +54,7 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-[#09090b] bg-grid-pattern text-zinc-100 flex selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-[#f4f4f6] bg-grid-pattern text-zinc-900 flex selection:bg-indigo-600 selection:text-white">
       {/* Sidebar Navigation */}
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
@@ -66,12 +66,12 @@ export default function App() {
         {/* Main Content Container */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-6">
           {/* Exactly ONE <h1> tag on the page with animated hand greeting */}
-          <div className="pb-2">
-            <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight flex items-center gap-2">
+          <div className="pb-1">
+            <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight flex items-center gap-2">
               <span>Welcome back, Alex</span>
               <span className="animate-wave text-2xl select-none" role="img" aria-label="Waving hand">👋</span>
             </h1>
-            <p className="text-xs text-zinc-400 mt-1">
+            <p className="text-xs text-zinc-600 mt-1">
               Here is what is happening with your SaaS telemetry, revenue trajectory, and subscriber retention today.
             </p>
           </div>
@@ -165,17 +165,17 @@ export default function App() {
           )}
         </main>
 
-        <footer className="border-t border-white/[0.06] py-5 text-center text-xs text-zinc-500 mt-auto">
+        <footer className="border-t border-zinc-200 bg-white/70 py-5 text-center text-xs text-zinc-500 mt-auto">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-[11px] text-zinc-500">
               RevTerm SaaS Revenue Intelligence Platform &copy; 2026. All rights reserved.
             </p>
-            <div className="flex items-center space-x-4 text-zinc-400 text-[11px]">
+            <div className="flex items-center space-x-4 text-zinc-600 text-[11px]">
               <a
                 href="https://github.com/revterm"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-white transition-colors"
+                className="hover:text-black transition-colors"
               >
                 GitHub
               </a>
@@ -183,13 +183,13 @@ export default function App() {
                 href="https://twitter.com/revterm"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-white transition-colors"
+                className="hover:text-black transition-colors"
               >
                 Twitter
               </a>
               <button
                 onClick={() => dispatch(toggleProModal(true))}
-                className="hover:text-white transition-colors"
+                className="hover:text-black transition-colors font-medium"
               >
                 Pricing &amp; License
               </button>
@@ -197,7 +197,7 @@ export default function App() {
                 href="/sitemap.xml"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-white transition-colors"
+                className="hover:text-black transition-colors"
               >
                 Sitemap
               </a>

@@ -105,7 +105,7 @@ const indexHtml = fs.readFileSync('client/index.html', 'utf-8');
 console.assert(indexHtml.includes('name="viewport" content="width=device-width, initial-scale=1.0"'), 'Viewport meta must be set');
 
 const sidebarContent = fs.readFileSync('client/src/components/Sidebar.jsx', 'utf-8');
-console.assert(sidebarContent.includes('fixed inset-0 bg-black/75'), 'Mobile sidebar overlay must exist');
+console.assert(sidebarContent.includes('fixed inset-0 bg-black/'), 'Mobile sidebar overlay must exist');
 console.assert(sidebarContent.includes('lg:hidden') && sidebarContent.includes('aria-label="Close sidebar"'), 'Mobile close button must exist');
 
 const tableContent = fs.readFileSync('client/src/components/CustomerTable.jsx', 'utf-8');
