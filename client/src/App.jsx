@@ -63,13 +63,14 @@ export default function App() {
 
         {/* Main Content Container */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-6">
-          {/* Exactly ONE <h1> tag on the page */}
+          {/* Exactly ONE <h1> tag on the page with animated hand greeting */}
           <div className="pb-2">
-            <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
-              Revenue Intelligence Dashboard
+            <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight flex items-center gap-2">
+              <span>Welcome back, Alex</span>
+              <span className="animate-wave text-2xl select-none" role="img" aria-label="Waving hand">👋</span>
             </h1>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Real-time Stripe telemetry, MRR trajectory, and customer retention metrics.
+            <p className="text-xs text-zinc-400 mt-1">
+              Here is what is happening with your SaaS telemetry, revenue trajectory, and subscriber retention today.
             </p>
           </div>
 

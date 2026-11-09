@@ -14,7 +14,7 @@ export default function StatCard({
   const isNegative = delta < 0;
 
   return (
-    <article className="linear-card linear-card-hover rounded-xl p-4 sm:p-5 relative overflow-visible">
+    <article className="linear-card tile-hover-shadow rounded-xl p-4 sm:p-5 relative overflow-visible cursor-default">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-1.5">
           <h3 className="text-[11px] font-medium uppercase tracking-wider text-zinc-400">

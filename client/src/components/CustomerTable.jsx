@@ -73,7 +73,7 @@ export default function CustomerTable({ customers = [] }) {
   };
 
   return (
-    <div className="linear-card rounded-xl p-5">
+    <div className="linear-card tile-hover-shadow rounded-xl p-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.06] gap-3">
         <div>
           <h2 className="text-sm font-semibold text-white tracking-tight">
