@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+ENV/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# Frontend builds
+client/dist/
+client/node_modules/
+server/node_modules/
+
+# Local databases & storage
+database.sqlite
+database.sqlite-journal
+*.sqlite
+*.db
+
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
