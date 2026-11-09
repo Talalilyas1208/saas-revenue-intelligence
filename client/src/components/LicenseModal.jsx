@@ -43,12 +43,20 @@ export default function LicenseModal() {
           <div className="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-brand-500">
             <Zap className="w-5 h-5 fill-current" />
           </div>
-          <div>
+            <div>
             <h3 className="text-lg font-bold text-white tracking-tight">
               RevTerm Pro Tier
             </h3>
             <p className="text-xs text-slate-400">
-              Commercial multi-project license ($29 lifetime)
+              Commercial multi-project license ($29 lifetime) –{' '}
+              <a
+                href="https://polar.sh/revterm"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-500 underline hover:text-brand-400 font-semibold"
+              >
+                Purchase on Polar
+              </a>
             </p>
           </div>
         </div>

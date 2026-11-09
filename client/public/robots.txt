@@ -1,0 +1,7 @@
+# Robots.txt for RevTerm SaaS Intelligence Platform
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Sitemaps
+Sitemap: https://revterm.io/sitemap.xml

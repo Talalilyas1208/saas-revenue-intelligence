@@ -17,7 +17,7 @@ export default function App() {
   const { activeTab } = useSelector((state) => state.ui);
 
   // Poll backend every 3 seconds for real-time live data
-  const { data: summary, isLoading: isSummaryLoading } = useGetSummaryQuery(undefined, {
+  const { data: summary } = useGetSummaryQuery(undefined, {
     pollingInterval: 3000
   });
 
@@ -34,62 +34,121 @@ export default function App() {
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* KPI Stat Cards Row */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            title="Monthly Recurring (MRR)"
-            value={`$${(summary?.mrr || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
-            delta={summary?.mrrGrowthPct || 14.8}
-            subtitle="growth"
-            icon={DollarSign}
-          />
-          <StatCard
-            title="Annual Run Rate (ARR)"
-            value={`$${(summary?.arr || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
-            subtitle="projected"
-            icon={TrendingUp}
-          />
-          <StatCard
-            title="Active Subscribers"
-            value={summary?.activeSubscribers || 0}
-            subtitle="customers"
-            icon={Users}
-          />
-          <StatCard
-            title="Customer Churn Rate"
-            value={`${summary?.churnRate || 0}%`}
-            subtitle="last 30 days"
-            icon={AlertCircle}
-          />
+        {/* Exactly ONE <h1> tag on the page */}
+        <div className="border-b border-dark-border/60 pb-5">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+            SaaS Revenue Intelligence &amp; Metrics Dashboard
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            Real-time Stripe billing analytics, MRR trajectory, and customer retention metrics.
+          </p>
+        </div>
+
+        {/* Section: High-Level Performance Indicators (H2 level semantic section) */}
+        <section aria-labelledby="kpi-heading">
+          <h2 id="kpi-heading" className="sr-only">Key Performance Indicators</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              title="Monthly Recurring (MRR)"
+              value={`$${(summary?.mrr || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+              delta={summary?.mrrGrowthPct || 14.8}
+              subtitle="growth"
+              icon={DollarSign}
+            />
+            <StatCard
+              title="Annual Run Rate (ARR)"
+              value={`$${(summary?.arr || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
+              subtitle="projected"
+              icon={TrendingUp}
+            />
+            <StatCard
+              title="Active Subscribers"
+              value={summary?.activeSubscribers || 0}
+              subtitle="customers"
+              icon={Users}
+            />
+            <StatCard
+              title="Customer Churn Rate"
+              value={`${summary?.churnRate || 0}%`}
+              subtitle="last 30 days"
+              icon={AlertCircle}
+            />
+          </div>
         </section>
 
         {/* Tab Content Switching */}
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-in fade-in duration-300">
-            <RevenueChart data={summary?.dailyTrend || []} />
+            <section aria-label="Revenue Chart Section">
+              <RevenueChart data={summary?.dailyTrend || []} />
+            </section>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <LiveEventFeed transactions={transactions} />
-              <CustomerTable customers={customers} />
+              <section aria-label="Live Transaction Stream Section">
+                <LiveEventFeed transactions={transactions} />
+              </section>
+              <section aria-label="Customer Directory Section">
+                <CustomerTable customers={customers} />
+              </section>
             </div>
           </div>
         )}
 
         {activeTab === 'feed' && (
           <div className="animate-in fade-in duration-300">
-            <LiveEventFeed transactions={transactions} />
+            <section aria-label="Live Transaction Stream Section">
+              <LiveEventFeed transactions={transactions} />
+            </section>
           </div>
         )}
 
         {activeTab === 'customers' && (
           <div className="animate-in fade-in duration-300">
-            <CustomerTable customers={customers} />
+            <section aria-label="Customer Directory Section">
+              <CustomerTable customers={customers} />
+            </section>
           </div>
         )}
       </main>
 
       <footer className="border-t border-dark-border/60 py-6 text-center text-xs text-slate-500">
-        RevTerm SaaS Revenue Intelligence Platform &copy; 2026. Built with Express.js, Sequelize, Redux Toolkit, and Tailwind.
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>
+            RevTerm SaaS Revenue Intelligence Platform &copy; 2026. All rights reserved.
+          </p>
+          <div className="flex items-center space-x-4 text-slate-400">
+            <a
+              href="https://github.com/revterm"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://twitter.com/revterm"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              Twitter
+            </a>
+            <a
+              href="https://polar.sh/revterm"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              Pricing
+            </a>
+            <a
+              href="/sitemap.xml"
+              className="hover:text-white transition-colors"
+            >
+              Sitemap
+            </a>
+          </div>
+        </div>
       </footer>
 
       <LicenseModal />

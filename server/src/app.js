@@ -29,18 +29,44 @@ app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// 3. Health check
+// 3. Health check & SEO endpoints
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Explicit SEO files handlers with correct MIME types
+const publicPath = path.resolve(__dirname, '../../client/public');
+const clientDistPath = path.resolve(__dirname, '../../client/dist');
+
+app.get('/sitemap.xml', (req, res) => {
+  res.type('application/xml');
+  const target = fs.existsSync(path.join(clientDistPath, 'sitemap.xml'))
+    ? path.join(clientDistPath, 'sitemap.xml')
+    : path.join(publicPath, 'sitemap.xml');
+  res.sendFile(target);
+});
+
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  const target = fs.existsSync(path.join(clientDistPath, 'robots.txt'))
+    ? path.join(clientDistPath, 'robots.txt')
+    : path.join(publicPath, 'robots.txt');
+  res.sendFile(target);
 });
 
 // 4. API routes
 app.use('/api/v1', apiRoutes);
 
 // 5. Serve React frontend build if present
-const clientDistPath = path.resolve(__dirname, '../../client/dist');
 if (fs.existsSync(clientDistPath)) {
-  app.use(express.static(clientDistPath));
+  app.use(express.static(clientDistPath, {
+    maxAge: '1d',
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.svg') || filePath.endsWith('.png') || filePath.endsWith('.woff2')) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    }
+  }));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) {
       return next();
