@@ -1,5 +1,6 @@
 import React, { useState, lazy, Suspense } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleProModal } from './features/ui/uiSlice.js';
 import {
   useGetSummaryQuery,
   useGetTransactionsQuery,
@@ -35,6 +36,7 @@ function SectionSkeleton({ height = 'h-64' }) {
 }
 
 export default function App() {
+  const dispatch = useDispatch();
   const { activeTab, isLivePaused } = useSelector((state) => state.ui);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -185,16 +187,16 @@ export default function App() {
               >
                 Twitter
               </a>
-              <a
-                href="https://polar.sh/revterm"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => dispatch(toggleProModal(true))}
                 className="hover:text-white transition-colors"
               >
-                Pricing
-              </a>
+                Pricing &amp; License
+              </button>
               <a
                 href="/sitemap.xml"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hover:text-white transition-colors"
               >
                 Sitemap

@@ -75,7 +75,7 @@ export default function RevenueChart({ data = [] }) {
         </div>
       </div>
 
-      <div className="h-64 w-full mt-4">
+      <div className="h-52 sm:h-64 w-full mt-4">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={filteredData} margin={{ top: 8, right: 6, left: -22, bottom: 0 }}>
             <defs>

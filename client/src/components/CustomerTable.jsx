@@ -123,8 +123,8 @@ export default function CustomerTable({ customers = [] }) {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
+      <div className="overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0">
+        <table className="w-full text-left text-xs min-w-[520px]">
           <thead>
             <tr className="border-b border-white/[0.06] text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">
               <th className="py-2.5 px-3">Subscriber</th>
