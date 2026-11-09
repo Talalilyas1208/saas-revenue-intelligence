@@ -7,6 +7,10 @@ const Organization = sequelize.define('Organization', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
+  userId: {
+    type: DataTypes.UUID,
+    allowNull: true
+  },
   name: {
     type: DataTypes.STRING,
     allowNull: false
@@ -24,7 +28,10 @@ const Organization = sequelize.define('Organization', {
     defaultValue: 'pro'
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  indexes: [
+    { name: 'idx_organizations_user_id', fields: ['userId'] }
+  ]
 });
 
 export default Organization;

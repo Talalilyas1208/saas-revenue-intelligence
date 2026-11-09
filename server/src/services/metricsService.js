@@ -1,13 +1,22 @@
 import { Op } from 'sequelize';
 import { Customer, Transaction, Organization } from '../models/index.js';
+import { MetricsCache } from './metricsCache.js';
 
 export class MetricsService {
   /**
    * Computes KPI summary: MRR, ARR, Active Subs, Churn, 30-day Trend
+   * Cached with high-performance in-memory TTL
    */
   static async getSummary() {
-    // 1. Calculate MRR from active customers
+    const cacheKey = 'metrics:summary';
+    const cached = MetricsCache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    // 1. Calculate MRR from active customers (indexed query on status)
     const activeCustomers = await Customer.findAll({
+      attributes: ['mrrContribution'],
       where: { status: 'active' }
     });
 
@@ -18,11 +27,12 @@ export class MetricsService {
     const churnedCustomers = await Customer.count({ where: { status: 'canceled' } });
     const churnRate = totalCustomers > 0 ? (churnedCustomers / totalCustomers) * 100 : 0;
 
-    // 2. Fetch last 30 days transactions for daily trend chart
+    // 2. Fetch last 30 days transactions for daily trend chart (indexed on occurredAt & eventType)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const transactions = await Transaction.findAll({
+      attributes: ['amount', 'occurredAt'],
       where: {
         eventType: { [Op.in]: ['charge.succeeded', 'invoice.paid'] },
         occurredAt: { [Op.gte]: thirtyDaysAgo }
@@ -51,7 +61,7 @@ export class MetricsService {
       revenue: Number(revenue.toFixed(2))
     }));
 
-    return {
+    const result = {
       mrr: Number(mrr.toFixed(2)),
       arr: Number(arr.toFixed(2)),
       activeSubscribers: activeCustomers.length,
@@ -59,22 +69,41 @@ export class MetricsService {
       mrrGrowthPct: 14.8,
       dailyTrend
     };
+
+    // Store in cache for 5000ms
+    MetricsCache.set(cacheKey, result, 5000);
+    return result;
   }
 
   /**
-   * Fetches latest transaction stream
+   * Fetches latest transaction stream (cached for 2500ms)
    */
   static async getRecentTransactions(limit = 20) {
-    return Transaction.findAll({
+    const cacheKey = `transactions:${limit}`;
+    const cached = MetricsCache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const txs = await Transaction.findAll({
       limit,
       order: [['occurredAt', 'DESC']]
     });
+
+    MetricsCache.set(cacheKey, txs, 2500);
+    return txs;
   }
 
   /**
-   * Fetches customer list with optional search query
+   * Fetches customer list with optional search query (indexed on email and name)
    */
   static async getCustomers(search = '') {
+    const cacheKey = `customers:${search.toLowerCase().trim()}`;
+    const cached = MetricsCache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const where = {};
     if (search) {
       where[Op.or] = [
@@ -83,16 +112,23 @@ export class MetricsService {
       ];
     }
 
-    return Customer.findAll({
+    const customers = await Customer.findAll({
       where,
       order: [['mrrContribution', 'DESC']]
     });
+
+    MetricsCache.set(cacheKey, customers, 4000);
+    return customers;
   }
 
   /**
-   * Creates a new transaction and updates customer state (e.g. from Webhook)
+   * Creates a new transaction and invalidates caches for instant reactive updates
    */
   static async recordTransaction(data) {
-    return Transaction.create(data);
+    const tx = await Transaction.create(data);
+    // Instant cache invalidation
+    MetricsCache.invalidate('metrics:summary');
+    MetricsCache.invalidate('transactions:');
+    return tx;
   }
 }

@@ -7,6 +7,10 @@ const Customer = sequelize.define('Customer', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
+  organizationId: {
+    type: DataTypes.UUID,
+    allowNull: true
+  },
   name: {
     type: DataTypes.STRING,
     allowNull: false
@@ -33,7 +37,14 @@ const Customer = sequelize.define('Customer', {
     defaultValue: DataTypes.NOW
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  indexes: [
+    { name: 'idx_customers_status', fields: ['status'] },
+    { name: 'idx_customers_email', fields: ['email'] },
+    { name: 'idx_customers_mrr', fields: ['mrrContribution'] },
+    { name: 'idx_customers_org_id', fields: ['organizationId'] },
+    { name: 'idx_customers_org_status', fields: ['organizationId', 'status'] }
+  ]
 });
 
 export default Customer;

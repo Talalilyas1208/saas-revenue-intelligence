@@ -7,6 +7,10 @@ const Transaction = sequelize.define('Transaction', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
+  organizationId: {
+    type: DataTypes.UUID,
+    allowNull: true
+  },
   stripeChargeId: {
     type: DataTypes.STRING,
     allowNull: true
@@ -42,7 +46,14 @@ const Transaction = sequelize.define('Transaction', {
     defaultValue: DataTypes.NOW
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  indexes: [
+    { name: 'idx_transactions_occurred_at', fields: ['occurredAt'] },
+    { name: 'idx_transactions_event_type', fields: ['eventType'] },
+    { name: 'idx_transactions_org_id', fields: ['organizationId'] },
+    { name: 'idx_transactions_org_occurred', fields: ['organizationId', 'occurredAt'] },
+    { name: 'idx_transactions_customer_email', fields: ['customerEmail'] }
+  ]
 });
 
 export default Transaction;

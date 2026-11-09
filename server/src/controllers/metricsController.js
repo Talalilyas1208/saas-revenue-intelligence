@@ -2,17 +2,20 @@ import { MetricsService } from '../services/metricsService.js';
 
 export class MetricsController {
   static async getSummary(req, res) {
+    res.setHeader('Cache-Control', 'private, max-age=3, stale-while-revalidate=10');
     const summary = await MetricsService.getSummary();
     res.json({ success: true, data: summary });
   }
 
   static async getTransactions(req, res) {
+    res.setHeader('Cache-Control', 'private, max-age=2, stale-while-revalidate=5');
     const limit = parseInt(req.query.limit, 10) || 20;
     const transactions = await MetricsService.getRecentTransactions(limit);
     res.json({ success: true, data: transactions });
   }
 
   static async getCustomers(req, res) {
+    res.setHeader('Cache-Control', 'private, max-age=5, stale-while-revalidate=15');
     const search = req.query.search || '';
     const customers = await MetricsService.getCustomers(search);
     res.json({ success: true, data: customers });

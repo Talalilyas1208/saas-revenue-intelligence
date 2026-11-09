@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useSelector } from 'react-redux';
 import {
   useGetSummaryQuery,
@@ -8,12 +8,31 @@ import {
 import Sidebar from './components/Sidebar.jsx';
 import Header from './components/Header.jsx';
 import StatCard from './components/StatCard.jsx';
-import RevenueChart from './components/RevenueChart.jsx';
-import LiveEventFeed from './components/LiveEventFeed.jsx';
-import CustomerTable from './components/CustomerTable.jsx';
-import SettingsView from './components/SettingsView.jsx';
-import LicenseModal from './components/LicenseModal.jsx';
 import { DollarSign, TrendingUp, Users, AlertCircle } from 'lucide-react';
+
+// Lazy-loaded components for optimal initial bundle & fast LCP
+const RevenueChart = lazy(() => import('./components/RevenueChart.jsx'));
+const LiveEventFeed = lazy(() => import('./components/LiveEventFeed.jsx'));
+const CustomerTable = lazy(() => import('./components/CustomerTable.jsx'));
+const SettingsView = lazy(() => import('./components/SettingsView.jsx'));
+const LicenseModal = lazy(() => import('./components/LicenseModal.jsx'));
+
+// Sleek loading skeleton
+function SectionSkeleton({ height = 'h-64' }) {
+  return (
+    <div className={`linear-card rounded-xl p-5 ${height} flex flex-col justify-between animate-pulse`}>
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.04]">
+        <div className="h-4 w-36 bg-zinc-800 rounded" />
+        <div className="h-4 w-20 bg-zinc-800 rounded" />
+      </div>
+      <div className="space-y-3 flex-1 flex flex-col justify-center">
+        <div className="h-3 w-full bg-zinc-800/60 rounded" />
+        <div className="h-3 w-5/6 bg-zinc-800/40 rounded" />
+        <div className="h-3 w-4/6 bg-zinc-800/30 rounded" />
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const { activeTab, isLivePaused } = useSelector((state) => state.ui);
@@ -90,19 +109,25 @@ export default function App() {
             </div>
           </section>
 
-          {/* Tab Content Switching */}
+          {/* Tab Content Switching with Lazy Loading Suspense */}
           {activeTab === 'overview' && (
             <div className="space-y-6 animate-in fade-in duration-200">
               <section aria-label="Revenue Chart Section">
-                <RevenueChart data={summary?.dailyTrend || []} />
+                <Suspense fallback={<SectionSkeleton height="h-72" />}>
+                  <RevenueChart data={summary?.dailyTrend || []} />
+                </Suspense>
               </section>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <section aria-label="Live Stream Section">
-                  <LiveEventFeed transactions={transactions} />
+                  <Suspense fallback={<SectionSkeleton height="h-96" />}>
+                    <LiveEventFeed transactions={transactions} />
+                  </Suspense>
                 </section>
                 <section aria-label="Customer Directory Section">
-                  <CustomerTable customers={customers} />
+                  <Suspense fallback={<SectionSkeleton height="h-96" />}>
+                    <CustomerTable customers={customers} />
+                  </Suspense>
                 </section>
               </div>
             </div>
@@ -111,7 +136,9 @@ export default function App() {
           {activeTab === 'feed' && (
             <div className="animate-in fade-in duration-200">
               <section aria-label="Live Stream Section">
-                <LiveEventFeed transactions={transactions} />
+                <Suspense fallback={<SectionSkeleton height="h-96" />}>
+                  <LiveEventFeed transactions={transactions} />
+                </Suspense>
               </section>
             </div>
           )}
@@ -119,14 +146,18 @@ export default function App() {
           {activeTab === 'customers' && (
             <div className="animate-in fade-in duration-200">
               <section aria-label="Customer Directory Section">
-                <CustomerTable customers={customers} />
+                <Suspense fallback={<SectionSkeleton height="h-96" />}>
+                  <CustomerTable customers={customers} />
+                </Suspense>
               </section>
             </div>
           )}
 
           {activeTab === 'settings' && (
             <div className="animate-in fade-in duration-200">
-              <SettingsView />
+              <Suspense fallback={<SectionSkeleton height="h-80" />}>
+                <SettingsView />
+              </Suspense>
             </div>
           )}
         </main>
@@ -172,7 +203,9 @@ export default function App() {
         </footer>
       </div>
 
-      <LicenseModal />
+      <Suspense fallback={null}>
+        <LicenseModal />
+      </Suspense>
     </div>
   );
 }
