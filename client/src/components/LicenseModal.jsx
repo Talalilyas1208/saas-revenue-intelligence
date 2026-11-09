@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleProModal, unlockPro } from '../features/ui/uiSlice.js';
-import { Zap, Check, X, ShieldCheck } from 'lucide-react';
+import { Zap, Check, X, ArrowUpRight } from 'lucide-react';
 
 export default function LicenseModal() {
   const dispatch = useDispatch();
@@ -14,7 +14,7 @@ export default function LicenseModal() {
   const handleGenerateDemo = () => {
     const demoKey = 'REV-PRO-FOUNDER2026-B817A9';
     setKeyInput(demoKey);
-    setFeedback('Generated valid cryptographic demo key!');
+    setFeedback('Generated valid cryptographic demo key');
   };
 
   const handleActivate = () => {
@@ -30,38 +30,40 @@ export default function LicenseModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="glass-card bg-[#111827] border border-brand-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="bg-[#121215] border border-white/[0.1] rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
         <button
           onClick={() => dispatch(toggleProModal(false))}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg"
+          className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-lg"
+          aria-label="Close modal"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-brand-500">
-            <Zap className="w-5 h-5 fill-current" />
+          <div className="w-8 h-8 rounded-lg bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-white">
+            <Zap className="w-4 h-4 fill-current" />
           </div>
-            <div>
-            <h3 className="text-lg font-bold text-white tracking-tight">
+          <div>
+            <h3 className="text-sm font-semibold text-white tracking-tight">
               RevTerm Pro Tier
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-zinc-400">
               Commercial multi-project license ($29 lifetime) –{' '}
               <a
                 href="https://polar.sh/revterm"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-brand-500 underline hover:text-brand-400 font-semibold"
+                className="text-zinc-300 underline hover:text-white inline-flex items-center space-x-0.5"
               >
-                Purchase on Polar
+                <span>Purchase</span>
+                <ArrowUpRight className="w-3 h-3 text-zinc-500" />
               </a>
             </p>
           </div>
         </div>
 
-        <div className="mt-5 space-y-2.5 text-xs text-slate-300">
+        <div className="mt-4 space-y-2 text-xs text-zinc-300">
           {[
             'Multi-Project / Multiple Stripe Account Switching',
             'Real-Time Webhook Chime Daemon & Desktop Alerts',
@@ -69,14 +71,14 @@ export default function LicenseModal() {
             'Export Historical CSVs & Tax Summary'
           ].map((feat, idx) => (
             <div key={idx} className="flex items-center space-x-2">
-              <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
               <span>{feat}</span>
             </div>
           ))}
         </div>
 
-        <div className="mt-6">
-          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+        <div className="mt-5">
+          <label className="block text-[11px] font-medium uppercase tracking-wider text-zinc-400 mb-1.5">
             License Key
           </label>
           <input
@@ -84,7 +86,7 @@ export default function LicenseModal() {
             value={keyInput}
             onChange={(e) => setKeyInput(e.target.value)}
             placeholder="REV-PRO-XXXXX-XXXXXX"
-            className="w-full px-3.5 py-2.5 text-sm font-mono bg-dark-bg border border-dark-border rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition-colors"
+            className="w-full px-3 py-2 text-xs font-mono bg-zinc-900 border border-white/[0.08] rounded-lg text-white placeholder-zinc-600 focus:outline-none focus:border-white/[0.2] transition-colors"
           />
         </div>
 
@@ -94,18 +96,18 @@ export default function LicenseModal() {
           </p>
         )}
 
-        <div className="mt-6 flex items-center justify-end space-x-3">
+        <div className="mt-5 flex items-center justify-end space-x-2">
           <button
             onClick={handleGenerateDemo}
             type="button"
-            className="px-3 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/[0.08] transition-colors"
           >
             Demo Key
           </button>
           <button
             onClick={handleActivate}
             type="button"
-            className="px-4 py-2 text-xs font-semibold rounded-xl bg-brand-600 hover:bg-brand-500 text-white transition-all shadow-md shadow-brand-500/25"
+            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-white text-zinc-950 hover:bg-zinc-200 transition-colors shadow-sm"
           >
             Activate Key
           </button>

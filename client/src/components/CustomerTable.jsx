@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { setSearchQuery } from '../features/ui/uiSlice.js';
-import { Search, Download, Filter, UserCheck, AlertTriangle, UserX } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { Download } from 'lucide-react';
 
 export default function CustomerTable({ customers = [] }) {
-  const dispatch = useDispatch();
   const globalSearch = useSelector((state) => state.ui.searchQuery);
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -20,7 +18,6 @@ export default function CustomerTable({ customers = [] }) {
     return matchesSearch && matchesStatus;
   });
 
-  // Calculate status counts
   const counts = {
     all: customers.length,
     active: customers.filter((c) => c.status === 'active').length,
@@ -49,25 +46,26 @@ export default function CustomerTable({ customers = [] }) {
     document.body.removeChild(link);
   };
 
-  const getStatusBadge = (status) => {
+  const renderStatus = (status) => {
     switch (status) {
       case 'active':
         return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-400">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
             <span>Active</span>
           </span>
         );
       case 'past_due':
         return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-rose-400">
             <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
             <span>Past Due</span>
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-700/40 text-slate-400 border border-slate-700/50">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-zinc-500">
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
             <span>Canceled</span>
           </span>
         );
@@ -75,23 +73,22 @@ export default function CustomerTable({ customers = [] }) {
   };
 
   return (
-    <div className="glass-card rounded-2xl p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-dark-border gap-4">
+    <div className="linear-card rounded-xl p-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.06] gap-3">
         <div>
-          <h2 className="text-base font-bold text-white tracking-tight">
-            Customer Directory &amp; Retention
+          <h2 className="text-sm font-semibold text-white tracking-tight">
+            Customer Directory
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-zinc-400 mt-0.5">
             Showing {filtered.length} of {customers.length} total subscribers
           </p>
         </div>
 
         {/* Action Controls */}
         <div className="flex items-center space-x-2">
-          {/* Export CSV button */}
           <button
             onClick={handleExportCSV}
-            className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 transition-colors"
+            className="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium rounded-lg bg-zinc-900 border border-white/[0.08] hover:border-white/[0.16] text-zinc-300 hover:text-white transition-colors"
             title="Download customer list as CSV"
           >
             <Download className="w-3.5 h-3.5" />
@@ -101,9 +98,9 @@ export default function CustomerTable({ customers = [] }) {
       </div>
 
       {/* Filter Tabs by Status */}
-      <div className="flex items-center space-x-2 mt-4 pb-2 overflow-x-auto">
+      <div className="flex items-center space-x-1 mt-3 pb-2 border-b border-white/[0.04] overflow-x-auto">
         {[
-          { id: 'all', label: 'All Accounts', count: counts.all },
+          { id: 'all', label: 'All', count: counts.all },
           { id: 'active', label: 'Active', count: counts.active },
           { id: 'past_due', label: 'Past Due', count: counts.past_due },
           { id: 'canceled', label: 'Canceled', count: counts.canceled }
@@ -111,14 +108,14 @@ export default function CustomerTable({ customers = [] }) {
           <button
             key={tab.id}
             onClick={() => setStatusFilter(tab.id)}
-            className={`flex items-center space-x-1.5 px-3 py-1 text-xs font-medium rounded-lg transition-all ${
+            className={`flex items-center space-x-1.5 px-2.5 py-0.5 text-[11px] font-medium rounded-md transition-colors ${
               statusFilter === tab.id
-                ? 'bg-brand-600/20 text-brand-400 border border-brand-500/30 font-semibold'
-                : 'text-slate-400 hover:text-white bg-slate-900/50 border border-slate-800'
+                ? 'bg-white/[0.08] text-white font-medium'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             <span>{tab.label}</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300">
+            <span className="text-[10px] font-mono text-zinc-500">
               {tab.count}
             </span>
           </button>
@@ -126,42 +123,41 @@ export default function CustomerTable({ customers = [] }) {
       </div>
 
       {/* Table */}
-      <div className="mt-3 overflow-x-auto">
+      <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="border-b border-dark-border/80 text-slate-400 font-semibold uppercase tracking-wider">
-              <th className="py-3 px-3">Customer</th>
-              <th className="py-3 px-3">Plan Tier</th>
-              <th className="py-3 px-3">Status</th>
-              <th className="py-3 px-3 text-right">MRR Contribution</th>
-              <th className="py-3 px-3 text-right">Joined</th>
+            <tr className="border-b border-white/[0.06] text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">
+              <th className="py-2.5 px-3">Subscriber</th>
+              <th className="py-2.5 px-3">Plan</th>
+              <th className="py-2.5 px-3">Status</th>
+              <th className="py-2.5 px-3 text-right">MRR</th>
+              <th className="py-2.5 px-3 text-right">Joined</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-dark-border/40">
+          <tbody className="divide-y divide-white/[0.04]">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan="5" className="py-12 text-center text-slate-500">
-                  <p className="text-sm font-medium text-slate-400">No matching customers found</p>
-                  <p className="text-xs text-slate-500 mt-1">Try adjusting your search query or status filter.</p>
+                <td colSpan="5" className="py-10 text-center text-zinc-500 text-xs">
+                  No subscribers match your filter.
                 </td>
               </tr>
             ) : (
               filtered.map((c) => (
-                <tr key={c.id} className="hover:bg-slate-800/20 transition-colors">
-                  <td className="py-3.5 px-3">
-                    <p className="font-semibold text-white text-sm">{c.name}</p>
-                    <p className="text-slate-400 text-xs">{c.email}</p>
+                <tr key={c.id} className="hover:bg-white/[0.02] transition-colors">
+                  <td className="py-3 px-3">
+                    <p className="font-medium text-zinc-200 text-xs">{c.name}</p>
+                    <p className="text-zinc-500 text-[11px]">{c.email}</p>
                   </td>
-                  <td className="py-3.5 px-3 text-slate-300 font-medium">
+                  <td className="py-3 px-3 text-zinc-300 text-xs">
                     {c.plan}
                   </td>
-                  <td className="py-3.5 px-3">
-                    {getStatusBadge(c.status)}
+                  <td className="py-3 px-3">
+                    {renderStatus(c.status)}
                   </td>
-                  <td className="py-3.5 px-3 text-right font-mono font-bold text-white">
+                  <td className="py-3 px-3 text-right font-mono font-medium text-white tabular-nums text-xs">
                     ${Number(c.mrrContribution).toFixed(2)}/mo
                   </td>
-                  <td className="py-3.5 px-3 text-right text-slate-400 font-mono">
+                  <td className="py-3 px-3 text-right text-zinc-500 font-mono text-xs">
                     {c.joinedDate}
                   </td>
                 </tr>

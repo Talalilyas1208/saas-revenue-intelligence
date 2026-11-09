@@ -33,8 +33,8 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex selection:bg-brand-500 selection:text-white">
-      {/* Professional Sidebar Navigation */}
+    <div className="min-h-screen bg-[#09090b] bg-grid-pattern text-zinc-100 flex selection:bg-indigo-500 selection:text-white">
+      {/* Sidebar Navigation */}
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       {/* Main Layout Area */}
@@ -43,21 +43,21 @@ export default function App() {
         <Header onMenuClick={() => setIsSidebarOpen(true)} />
 
         {/* Main Content Container */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-6">
           {/* Exactly ONE <h1> tag on the page */}
-          <div className="border-b border-dark-border/60 pb-5">
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-              SaaS Revenue Intelligence &amp; Metrics Dashboard
+          <div className="pb-2">
+            <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
+              Revenue Intelligence Dashboard
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Real-time Stripe billing analytics, MRR trajectory, and customer retention metrics.
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Real-time Stripe telemetry, MRR trajectory, and customer retention metrics.
             </p>
           </div>
 
-          {/* Section: High-Level Performance Indicators (H2 level semantic section) */}
+          {/* Section: High-Level Performance Indicators */}
           <section aria-labelledby="kpi-heading">
             <h2 id="kpi-heading" className="sr-only">Key Performance Indicators</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
               <StatCard
                 title="Monthly Recurring (MRR)"
                 value={`$${(summary?.mrr || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
@@ -92,13 +92,13 @@ export default function App() {
 
           {/* Tab Content Switching */}
           {activeTab === 'overview' && (
-            <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="space-y-6 animate-in fade-in duration-200">
               <section aria-label="Revenue Chart Section">
                 <RevenueChart data={summary?.dailyTrend || []} />
               </section>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <section aria-label="Live Transaction Stream Section">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <section aria-label="Live Stream Section">
                   <LiveEventFeed transactions={transactions} />
                 </section>
                 <section aria-label="Customer Directory Section">
@@ -109,15 +109,15 @@ export default function App() {
           )}
 
           {activeTab === 'feed' && (
-            <div className="animate-in fade-in duration-300">
-              <section aria-label="Live Transaction Stream Section">
+            <div className="animate-in fade-in duration-200">
+              <section aria-label="Live Stream Section">
                 <LiveEventFeed transactions={transactions} />
               </section>
             </div>
           )}
 
           {activeTab === 'customers' && (
-            <div className="animate-in fade-in duration-300">
+            <div className="animate-in fade-in duration-200">
               <section aria-label="Customer Directory Section">
                 <CustomerTable customers={customers} />
               </section>
@@ -125,18 +125,18 @@ export default function App() {
           )}
 
           {activeTab === 'settings' && (
-            <div className="animate-in fade-in duration-300">
+            <div className="animate-in fade-in duration-200">
               <SettingsView />
             </div>
           )}
         </main>
 
-        <footer className="border-t border-dark-border/60 py-6 text-center text-xs text-slate-500 mt-auto">
-          <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p>
+        <footer className="border-t border-white/[0.06] py-5 text-center text-xs text-zinc-500 mt-auto">
+          <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-[11px] text-zinc-500">
               RevTerm SaaS Revenue Intelligence Platform &copy; 2026. All rights reserved.
             </p>
-            <div className="flex items-center space-x-4 text-slate-400">
+            <div className="flex items-center space-x-4 text-zinc-400 text-[11px]">
               <a
                 href="https://github.com/revterm"
                 target="_blank"

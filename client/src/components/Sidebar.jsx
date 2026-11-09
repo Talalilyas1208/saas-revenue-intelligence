@@ -10,8 +10,9 @@ import {
   ChevronDown,
   Check,
   ShieldCheck,
-  Terminal,
-  ExternalLink
+  ExternalLink,
+  Layers,
+  ArrowUpRight
 } from 'lucide-react';
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -23,8 +24,8 @@ export default function Sidebar({ isOpen, onClose }) {
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'feed', label: 'Live Feed', icon: Activity, badge: 'Live' },
-    { id: 'customers', label: 'Customers', icon: Users, badge: '7' },
+    { id: 'feed', label: 'Live Stream', icon: Activity, badge: 'Live' },
+    { id: 'customers', label: 'Subscribers', icon: Users, badge: '7' },
     { id: 'settings', label: 'Settings & Keys', icon: Settings }
   ];
 
@@ -39,30 +40,32 @@ export default function Sidebar({ isOpen, onClose }) {
       {isOpen && (
         <div
           onClick={onClose}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden"
         />
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-dark-card border-r border-dark-border flex flex-col transition-transform duration-200 lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-[#0c0c0e] border-r border-white/[0.06] flex flex-col transition-transform duration-200 lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Brand & Workspace Switcher */}
-        <div className="p-4 border-b border-dark-border">
-          <div className="flex items-center space-x-3 mb-4">
-            <img
-              src="/assets/logo.svg"
-              alt="RevTerm Logo"
-              width="32"
-              height="32"
-              className="w-8 h-8 rounded-lg shadow-md shadow-brand-500/30"
-            />
+        <div className="p-4 border-b border-white/[0.06]">
+          <div className="flex items-center space-x-2.5 mb-3.5">
+            <div className="w-7 h-7 rounded-lg bg-zinc-900 border border-white/[0.1] flex items-center justify-center p-1 shadow-sm">
+              <img
+                src="/assets/logo.svg"
+                alt="RevTerm Logo"
+                width="20"
+                height="20"
+                className="w-5 h-5 rounded"
+              />
+            </div>
             <div>
-              <span className="font-extrabold text-base tracking-tight text-white block">
+              <span className="font-semibold text-sm tracking-tight text-white block">
                 RevTerm
               </span>
-              <span className="text-[10px] text-slate-400 font-medium block">
+              <span className="text-[10px] text-zinc-500 font-mono block">
                 Revenue Intelligence
               </span>
             </div>
@@ -72,17 +75,17 @@ export default function Sidebar({ isOpen, onClose }) {
           <div className="relative">
             <button
               onClick={() => setIsWorkspaceMenuOpen(!isWorkspaceMenuOpen)}
-              className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl bg-dark-bg border border-dark-border hover:border-slate-700 text-slate-200 transition-colors"
+              className="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-lg bg-zinc-900/60 border border-white/[0.07] hover:border-white/[0.14] text-zinc-300 hover:text-white transition-colors"
             >
               <div className="flex items-center space-x-2 truncate">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
-                <span className="truncate">{activeWorkspace}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                <span className="truncate text-[11px] font-medium">{activeWorkspace}</span>
               </div>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 flex-shrink-0 ml-1" />
+              <ChevronDown className="w-3.5 h-3.5 text-zinc-500 flex-shrink-0 ml-1" />
             </button>
 
             {isWorkspaceMenuOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-dark-surface border border-slate-700 rounded-xl shadow-xl py-1 z-50">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-[#151518] border border-white/[0.1] rounded-lg shadow-2xl py-1 z-50">
                 {workspaces.map((ws) => (
                   <button
                     key={ws}
@@ -90,7 +93,7 @@ export default function Sidebar({ isOpen, onClose }) {
                       dispatch(setActiveWorkspace(ws));
                       setIsWorkspaceMenuOpen(false);
                     }}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs text-left hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-1.5 text-xs text-left hover:bg-white/[0.05] text-zinc-300 hover:text-white transition-colors"
                   >
                     <span>{ws}</span>
                     {activeWorkspace === ws && <Check className="w-3.5 h-3.5 text-emerald-400" />}
@@ -102,9 +105,9 @@ export default function Sidebar({ isOpen, onClose }) {
         </div>
 
         {/* Navigation links */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto" aria-label="Main Navigation">
-          <div className="px-3 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Analytics &amp; Data
+        <nav className="flex-1 px-2.5 py-3 space-y-0.5 overflow-y-auto" aria-label="Main Navigation">
+          <div className="px-2.5 pt-1 pb-1.5 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+            Workspace
           </div>
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -113,22 +116,22 @@ export default function Sidebar({ isOpen, onClose }) {
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
                   isActive
-                    ? 'bg-brand-600/15 text-brand-500 font-semibold border border-brand-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+                    ? 'bg-white/[0.08] text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-brand-500' : 'text-slate-400'}`} />
+                <div className="flex items-center space-x-2.5">
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-zinc-400'}`} strokeWidth={1.75} />
                   <span>{item.label}</span>
                 </div>
                 {item.badge && (
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
+                    className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-medium ${
                       item.badge === 'Live'
-                        ? 'bg-emerald-500/15 text-emerald-400 animate-pulse'
-                        : 'bg-slate-800 text-slate-400 border border-slate-700'
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        : 'bg-zinc-800 text-zinc-400'
                     }`}
                   >
                     {item.badge}
@@ -138,44 +141,40 @@ export default function Sidebar({ isOpen, onClose }) {
             );
           })}
 
-          <div className="pt-4 px-3 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Resources
+          <div className="pt-5 px-2.5 pb-1.5 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+            Platform
           </div>
           <a
             href="https://polar.sh/revterm"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-colors"
+            className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04] transition-colors"
           >
-            <div className="flex items-center space-x-3">
-              <ShieldCheck className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center space-x-2.5">
+              <ShieldCheck className="w-4 h-4 text-zinc-400" strokeWidth={1.75} />
               <span>Documentation</span>
             </div>
-            <ExternalLink className="w-3 h-3 text-slate-400" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-zinc-500" />
           </a>
         </nav>
 
         {/* Pro status card at bottom */}
-        <div className="p-3 border-t border-dark-border">
-          <div className="p-3.5 rounded-2xl bg-gradient-to-b from-slate-900 to-dark-bg border border-slate-800">
-            <div className="flex items-center space-x-2">
-              <div className="w-7 h-7 rounded-lg bg-brand-500/20 text-brand-500 flex items-center justify-center">
-                <Zap className="w-4 h-4 fill-current" />
+        <div className="p-3 border-t border-white/[0.06]">
+          <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/[0.06]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className={`w-2 h-2 rounded-full ${isProUnlocked ? 'bg-emerald-400' : 'bg-indigo-400'}`} />
+                <span className="text-xs font-medium text-white">
+                  {isProUnlocked ? 'Pro License' : 'Community Tier'}
+                </span>
               </div>
-              <div>
-                <p className="text-xs font-bold text-white">
-                  {isProUnlocked ? 'Pro Edition' : 'Free Community'}
-                </p>
-                <p className="text-[10px] text-slate-400">
-                  {isProUnlocked ? 'Multi-account active' : '1 Connected Account'}
-                </p>
-              </div>
+              <span className="text-[10px] text-zinc-500 font-mono">v1.0</span>
             </div>
 
             {!isProUnlocked && (
               <button
                 onClick={() => dispatch(toggleProModal(true))}
-                className="w-full mt-3 px-3 py-1.5 text-xs font-bold text-white rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:brightness-110 transition-all shadow-md shadow-brand-500/20"
+                className="w-full mt-2.5 px-2.5 py-1.5 text-xs font-medium text-white rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-white/[0.08] transition-colors"
               >
                 Upgrade to Pro
               </button>
