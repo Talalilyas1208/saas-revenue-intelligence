@@ -1,15 +1,53 @@
 import React, { useState } from 'react';
-import { Search, UserCheck, AlertTriangle, UserX } from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setSearchQuery } from '../features/ui/uiSlice.js';
+import { Search, Download, Filter, UserCheck, AlertTriangle, UserX } from 'lucide-react';
 
 export default function CustomerTable({ customers = [] }) {
-  const [query, setQuery] = useState('');
+  const dispatch = useDispatch();
+  const globalSearch = useSelector((state) => state.ui.searchQuery);
+  const [statusFilter, setStatusFilter] = useState('all');
 
-  const filtered = customers.filter(
-    (c) =>
-      c.name.toLowerCase().includes(query.toLowerCase()) ||
-      c.email.toLowerCase().includes(query.toLowerCase()) ||
-      c.plan.toLowerCase().includes(query.toLowerCase())
-  );
+  const filtered = customers.filter((c) => {
+    const matchesSearch =
+      c.name.toLowerCase().includes(globalSearch.toLowerCase()) ||
+      c.email.toLowerCase().includes(globalSearch.toLowerCase()) ||
+      c.plan.toLowerCase().includes(globalSearch.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === 'all' ? true : c.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  // Calculate status counts
+  const counts = {
+    all: customers.length,
+    active: customers.filter((c) => c.status === 'active').length,
+    past_due: customers.filter((c) => c.status === 'past_due').length,
+    canceled: customers.filter((c) => c.status === 'canceled').length
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['Customer Name', 'Email', 'Plan Tier', 'MRR Contribution', 'Status', 'Joined Date'];
+    const rows = filtered.map((c) => [
+      `"${c.name}"`,
+      `"${c.email}"`,
+      `"${c.plan}"`,
+      c.mrrContribution,
+      c.status,
+      c.joinedDate
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `revterm_customers_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -41,27 +79,54 @@ export default function CustomerTable({ customers = [] }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-dark-border gap-4">
         <div>
           <h2 className="text-base font-bold text-white tracking-tight">
-            Customer Directory & Retention
+            Customer Directory &amp; Retention
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Overview of subscribing accounts and MRR contribution
+            Showing {filtered.length} of {customers.length} total subscribers
           </p>
         </div>
 
-        {/* Search Input */}
-        <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search customer, email..."
-            className="w-full pl-9 pr-3 py-1.5 text-xs bg-dark-bg/80 border border-dark-border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
-          />
+        {/* Action Controls */}
+        <div className="flex items-center space-x-2">
+          {/* Export CSV button */}
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 transition-colors"
+            title="Download customer list as CSV"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Export CSV</span>
+          </button>
         </div>
       </div>
 
-      <div className="mt-4 overflow-x-auto">
+      {/* Filter Tabs by Status */}
+      <div className="flex items-center space-x-2 mt-4 pb-2 overflow-x-auto">
+        {[
+          { id: 'all', label: 'All Accounts', count: counts.all },
+          { id: 'active', label: 'Active', count: counts.active },
+          { id: 'past_due', label: 'Past Due', count: counts.past_due },
+          { id: 'canceled', label: 'Canceled', count: counts.canceled }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setStatusFilter(tab.id)}
+            className={`flex items-center space-x-1.5 px-3 py-1 text-xs font-medium rounded-lg transition-all ${
+              statusFilter === tab.id
+                ? 'bg-brand-600/20 text-brand-400 border border-brand-500/30 font-semibold'
+                : 'text-slate-400 hover:text-white bg-slate-900/50 border border-slate-800'
+            }`}
+          >
+            <span>{tab.label}</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300">
+              {tab.count}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* Table */}
+      <div className="mt-3 overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-dark-border/80 text-slate-400 font-semibold uppercase tracking-wider">
@@ -75,8 +140,9 @@ export default function CustomerTable({ customers = [] }) {
           <tbody className="divide-y divide-dark-border/40">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan="5" className="py-8 text-center text-slate-500">
-                  No customers matched your filter.
+                <td colSpan="5" className="py-12 text-center text-slate-500">
+                  <p className="text-sm font-medium text-slate-400">No matching customers found</p>
+                  <p className="text-xs text-slate-500 mt-1">Try adjusting your search query or status filter.</p>
                 </td>
               </tr>
             ) : (

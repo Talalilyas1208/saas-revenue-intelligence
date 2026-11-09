@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setDateRange } from '../features/ui/uiSlice.js';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -8,6 +10,7 @@ import {
   Tooltip,
   CartesianGrid
 } from 'recharts';
+import { TrendingUp, DollarSign } from 'lucide-react';
 
 function CustomTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
@@ -25,30 +28,44 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function RevenueChart({ data = [] }) {
-  const [range, setRange] = useState('30D');
+  const dispatch = useDispatch();
+  const { dateRange } = useSelector((state) => state.ui);
 
-  const filteredData = range === '7D' ? data.slice(-7) : data;
+  // Filter based on active dateRange
+  let filteredData = data;
+  if (dateRange === '7D') {
+    filteredData = data.slice(-7);
+  } else if (dateRange === '30D') {
+    filteredData = data.slice(-30);
+  }
+
+  const totalPeriodRevenue = filteredData.reduce((acc, curr) => acc + Number(curr.revenue), 0);
+  const avgDaily = filteredData.length > 0 ? totalPeriodRevenue / filteredData.length : 0;
 
   return (
     <div className="glass-card rounded-2xl p-6 relative">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-dark-border gap-4">
         <div>
-          <h2 className="text-base font-bold text-white tracking-tight">
-            Revenue Performance & Trajectory
+          <h2 className="text-base font-bold text-white tracking-tight flex items-center space-x-2">
+            <span>Revenue Trajectory &amp; Growth</span>
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Real-time daily billed transactions and recurring revenue
+            Total for selected period:{' '}
+            <span className="font-mono font-bold text-white">
+              ${totalPeriodRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            </span>{' '}
+            (Avg ${avgDaily.toFixed(0)}/day)
           </p>
         </div>
 
         {/* Timeframe Buttons */}
         <div className="flex items-center space-x-1 bg-dark-bg/80 border border-dark-border p-1 rounded-xl self-start sm:self-auto">
-          {['7D', '30D', 'All'].map((tab) => (
+          {['7D', '30D', '90D', 'All'].map((tab) => (
             <button
               key={tab}
-              onClick={() => setRange(tab)}
+              onClick={() => dispatch(setDateRange(tab))}
               className={`px-3 py-1 text-xs font-semibold rounded-lg transition-colors ${
-                range === tab
+                dateRange === tab
                   ? 'bg-brand-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
