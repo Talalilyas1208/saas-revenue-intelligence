@@ -4,8 +4,8 @@
 
 @layer base {
   body {
-    background-color: #f4f4f6;
-    color: #09090b;
+    background-color: #F5F5F5;
+    color: #171717;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -13,21 +13,21 @@
 }
 
 @layer utilities {
-  /* Crisp medium-white cards with clean subtle light borders */
+  /* Crisp pure-white surfaces over #F5F5F5 alabaster mid-white canvas */
   .linear-card {
-    background-color: #ffffff;
-    border: 1px solid #e4e4e7;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+    background-color: #FFFFFF;
+    border: 1px solid #E5E5E5;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
   }
 
-  /* Primary patcher shadow while hovering */
+  /* Unified single-color obsidian elevation shadow on hover */
   .tile-hover-shadow {
     transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .tile-hover-shadow:hover {
-    border-color: rgba(99, 102, 241, 0.45);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 0 20px -2px rgba(99, 102, 241, 0.18);
+    border-color: rgba(23, 23, 23, 0.28);
+    box-shadow: 0 14px 30px -10px rgba(23, 23, 23, 0.14), 0 0 0 1px rgba(23, 23, 23, 0.08);
   }
 
   .tabular-nums {
@@ -52,9 +52,9 @@
   animation: wave-hand 2s ease-in-out infinite;
 }
 
-/* Subtle medium-white grid pattern */
+/* Subtle architectural dot grid on #F5F5F5 */
 .bg-grid-pattern {
-  background-image: radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(23, 23, 23, 0.06) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
@@ -67,9 +67,9 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(23, 23, 23, 0.16);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.28);
+  background: rgba(23, 23, 23, 0.30);
 }

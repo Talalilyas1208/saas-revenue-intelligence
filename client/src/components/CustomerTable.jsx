@@ -107,17 +107,17 @@ export default function CustomerTable({ customers = [] }) {
   };
 
   const renderStatusButton = (c) => {
-    let badgeStyle = 'text-zinc-600 bg-zinc-100 border-zinc-200 hover:bg-zinc-200';
-    let dotStyle = 'bg-zinc-500';
+    let badgeStyle = 'text-neutral-500 bg-neutral-50 border-neutral-200 hover:bg-neutral-100';
+    let dotStyle = 'bg-neutral-400';
     let label = 'Canceled';
 
     if (c.status === 'active') {
-      badgeStyle = 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100';
-      dotStyle = 'bg-emerald-600';
+      badgeStyle = 'text-white bg-neutral-900 border-neutral-900 hover:bg-neutral-800';
+      dotStyle = 'bg-white';
       label = 'Active';
     } else if (c.status === 'past_due') {
-      badgeStyle = 'text-rose-700 bg-rose-50 border-rose-200 hover:bg-rose-100';
-      dotStyle = 'bg-rose-600';
+      badgeStyle = 'text-neutral-800 bg-neutral-200 border-neutral-300 hover:bg-neutral-300';
+      dotStyle = 'bg-neutral-700';
       label = 'Past Due';
     }
 

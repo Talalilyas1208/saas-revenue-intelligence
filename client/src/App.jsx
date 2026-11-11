@@ -112,7 +112,7 @@ export default function App() {
     validOrg && !validOrg.hasStripeKey && customers.length === 0 && transactions.length === 0;
 
   return (
-    <div className="min-h-screen bg-[#f4f4f6] bg-grid-pattern text-zinc-900 flex selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen bg-[#F5F5F5] bg-grid-pattern text-neutral-900 flex selection:bg-neutral-900 selection:text-white">
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -143,24 +143,24 @@ export default function App() {
 
           {/* Empty State Onboarding Banner (Only shown when brand new workspace has 0 records & no Stripe key) */}
           {showOnboarding && activeTab === 'overview' && (
-            <div className="linear-card rounded-xl p-5 border border-indigo-200 bg-indigo-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="linear-card rounded-xl p-5 border border-neutral-300 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-sm font-bold text-black">Connect your live revenue source</h2>
-                <p className="text-xs text-zinc-600 mt-0.5">
+                <h2 className="text-sm font-bold text-neutral-950">Connect your live revenue source</h2>
+                <p className="text-xs text-neutral-600 mt-0.5">
                   Link your Stripe Restricted API Key to automatically import real subscriptions and charges, or record your first subscriber manually.
                 </p>
               </div>
               <div className="flex items-center space-x-2 flex-shrink-0">
                 <button
                   onClick={() => dispatch(setActiveTab('settings'))}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-zinc-950 text-white hover:bg-zinc-800 transition-colors"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-neutral-900 text-white hover:bg-neutral-800 transition-colors"
                 >
                   <Key className="w-3.5 h-3.5" />
                   <span>Connect Stripe</span>
                 </button>
                 <button
                   onClick={() => dispatch(toggleRecordPaymentModal(true))}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-zinc-200 text-zinc-800 hover:bg-zinc-50 transition-colors"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#F5F5F5] border border-neutral-200 text-neutral-800 hover:bg-neutral-200 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Record Payment</span>

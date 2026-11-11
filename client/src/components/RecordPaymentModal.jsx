@@ -39,7 +39,6 @@ export default function RecordPaymentModal() {
       playSaleChime();
     }
 
-    // Close modal & reset immediately while Redux optimistic cache displays record in 0ms
     setCustomerEmail('');
     setDescription('');
     dispatch(toggleRecordPaymentModal(false));
@@ -57,30 +56,30 @@ export default function RecordPaymentModal() {
       role="dialog"
     >
       <div
-        className="bg-white border border-zinc-200 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative"
+        className="bg-white border border-neutral-200 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={() => dispatch(toggleRecordPaymentModal(false))}
-          className="absolute top-4 right-4 text-zinc-400 hover:text-black p-1 rounded-lg"
+          className="absolute top-4 right-4 text-neutral-400 hover:text-black p-1 rounded-lg"
           aria-label="Close modal"
         >
           <X className="w-4 h-4" />
         </button>
 
         <div className="flex items-center space-x-3 mb-4">
-          <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+          <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-900 flex items-center justify-center text-white">
             <DollarSign className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-black">Record Real Transaction</h3>
-            <p className="text-xs text-zinc-500">Log a payment, invoice, or charge directly to your ledger.</p>
+            <h3 className="text-sm font-bold text-neutral-950">Record Real Transaction</h3>
+            <p className="text-xs text-neutral-500">Log a payment, invoice, or charge directly to your ledger.</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-zinc-600 mb-1">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1">
               Customer Email
             </label>
             <input
@@ -89,13 +88,13 @@ export default function RecordPaymentModal() {
               value={customerEmail}
               onChange={(e) => setCustomerEmail(e.target.value)}
               placeholder="billing@customer.com"
-              className="w-full px-3 py-2 text-xs bg-zinc-50 border border-zinc-200 rounded-lg text-black placeholder-zinc-400 focus:bg-white focus:outline-none focus:border-zinc-400"
+              className="w-full px-3 py-2 text-xs bg-[#F5F5F5] border border-neutral-200 rounded-lg text-neutral-950 placeholder-neutral-400 focus:bg-white focus:outline-none focus:border-neutral-400"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-zinc-600 mb-1">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1">
                 Amount (USD)
               </label>
               <input
@@ -105,18 +104,18 @@ export default function RecordPaymentModal() {
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-mono bg-zinc-50 border border-zinc-200 rounded-lg text-black focus:bg-white focus:outline-none focus:border-zinc-400"
+                className="w-full px-3 py-2 text-xs font-mono bg-[#F5F5F5] border border-neutral-200 rounded-lg text-neutral-950 focus:bg-white focus:outline-none focus:border-neutral-400"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-zinc-600 mb-1">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1">
                 Event Type
               </label>
               <select
                 value={eventType}
                 onChange={(e) => setEventType(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-zinc-50 border border-zinc-200 rounded-lg text-black focus:bg-white focus:outline-none focus:border-zinc-400"
+                className="w-full px-3 py-2 text-xs bg-[#F5F5F5] border border-neutral-200 rounded-lg text-neutral-950 focus:bg-white focus:outline-none focus:border-neutral-400"
               >
                 <option value="charge.succeeded">Payment Succeeded</option>
                 <option value="invoice.paid">Invoice Paid</option>
@@ -126,7 +125,7 @@ export default function RecordPaymentModal() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-zinc-600 mb-1">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1">
               Description
             </label>
             <input
@@ -134,12 +133,12 @@ export default function RecordPaymentModal() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Annual Enterprise Invoice #1042"
-              className="w-full px-3 py-2 text-xs bg-zinc-50 border border-zinc-200 rounded-lg text-black placeholder-zinc-400 focus:bg-white focus:outline-none focus:border-zinc-400"
+              className="w-full px-3 py-2 text-xs bg-[#F5F5F5] border border-neutral-200 rounded-lg text-neutral-950 placeholder-neutral-400 focus:bg-white focus:outline-none focus:border-neutral-400"
             />
           </div>
 
           {errorMsg && (
-            <p className="text-xs text-rose-700 font-semibold flex items-center space-x-1">
+            <p className="text-xs text-neutral-900 font-semibold flex items-center space-x-1">
               <AlertCircle className="w-3.5 h-3.5" />
               <span>{errorMsg}</span>
             </p>
@@ -149,14 +148,14 @@ export default function RecordPaymentModal() {
             <button
               type="button"
               onClick={() => dispatch(toggleRecordPaymentModal(false))}
-              className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-700"
+              className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-1.5 text-xs font-bold rounded-lg bg-zinc-950 text-white hover:bg-zinc-800 disabled:opacity-50"
+              className="px-4 py-1.5 text-xs font-bold rounded-lg bg-neutral-900 text-white hover:bg-neutral-800 disabled:opacity-50"
             >
               {isLoading ? 'Recording...' : 'Record Payment'}
             </button>

@@ -77,28 +77,28 @@ export default function Header({ onMenuClick, user, currentOrg }) {
     .slice(0, 2);
 
   return (
-    <header className="sticky top-0 z-30 h-14 border-b border-zinc-200 bg-white/95 backdrop-blur-md px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4 shadow-xs">
+    <header className="sticky top-0 z-30 h-14 border-b border-neutral-200 bg-white/95 backdrop-blur-md px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4 shadow-xs">
       {/* Left: Mobile hamburger & Global Search */}
       <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0 max-w-xs sm:max-w-sm">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-1.5 rounded-lg text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 focus:outline-none flex-shrink-0"
+          className="lg:hidden p-1.5 rounded-lg text-neutral-500 hover:text-neutral-950 hover:bg-neutral-100 focus:outline-none flex-shrink-0"
           aria-label="Open sidebar navigation"
         >
           <Menu className="w-4 h-4" />
         </button>
 
         <div className="relative w-full min-w-0">
-          <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             ref={searchInputRef}
             type="text"
             value={searchQuery}
             onChange={handleSearchChange}
             placeholder="Search subscribers, emails..."
-            className="w-full pl-8 pr-3 sm:pr-10 py-1.5 text-xs bg-zinc-50 border border-zinc-200 rounded-lg text-zinc-950 placeholder-zinc-400 focus:bg-white focus:outline-none focus:border-zinc-400 transition-colors"
+            className="w-full pl-8 pr-3 sm:pr-10 py-1.5 text-xs bg-[#F5F5F5] border border-neutral-200 rounded-lg text-neutral-950 placeholder-neutral-400 focus:bg-white focus:outline-none focus:border-neutral-400 transition-colors"
           />
-          <div className="hidden sm:flex items-center space-x-0.5 absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400 bg-zinc-100 px-1 py-0.5 rounded border border-zinc-200">
+          <div className="hidden sm:flex items-center space-x-0.5 absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-neutral-400 bg-white px-1 py-0.5 rounded border border-neutral-200">
             <span>⌘K</span>
           </div>
         </div>
@@ -107,15 +107,15 @@ export default function Header({ onMenuClick, user, currentOrg }) {
       {/* Right: Date Range Filter & Live Actions */}
       <div className="flex items-center space-x-1.5 sm:space-x-2.5 flex-shrink-0">
         {/* Date Range Selector */}
-        <div className="hidden md:flex items-center p-0.5 bg-zinc-100 border border-zinc-200 rounded-lg">
+        <div className="hidden md:flex items-center p-0.5 bg-[#F5F5F5] border border-neutral-200 rounded-lg">
           {['7D', '30D', '90D', '1Y'].map((range) => (
             <button
               key={range}
               onClick={() => dispatch(setDateRange(range))}
               className={`px-2 py-0.5 text-[11px] font-medium rounded-md transition-colors ${
                 dateRange === range
-                  ? 'bg-white text-zinc-950 font-semibold shadow-xs'
-                  : 'text-zinc-500 hover:text-zinc-900'
+                  ? 'bg-neutral-900 text-white font-semibold shadow-xs'
+                  : 'text-neutral-600 hover:text-neutral-950'
               }`}
             >
               {range}
@@ -126,14 +126,14 @@ export default function Header({ onMenuClick, user, currentOrg }) {
         {/* Audio Chime Toggle */}
         <button
           onClick={() => dispatch(toggleSound())}
-          className="p-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:text-zinc-950 hover:border-zinc-300 transition-colors shadow-xs"
+          className="p-1.5 rounded-lg border border-neutral-200 bg-white text-neutral-500 hover:text-neutral-950 hover:border-neutral-300 transition-colors shadow-xs"
           title={soundEnabled ? 'Sales sound alerts enabled' : 'Muted'}
           aria-label="Toggle notification sounds"
         >
           {soundEnabled ? (
-            <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
+            <Volume2 className="w-3.5 h-3.5 text-neutral-900" />
           ) : (
-            <VolumeX className="w-3.5 h-3.5" />
+            <VolumeX className="w-3.5 h-3.5 text-neutral-400" />
           )}
         </button>
 
@@ -141,7 +141,7 @@ export default function Header({ onMenuClick, user, currentOrg }) {
         <button
           onClick={handleSync}
           disabled={isSyncing}
-          className="hidden sm:flex items-center space-x-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-zinc-200 bg-white text-zinc-700 hover:text-black hover:border-zinc-300 transition-colors shadow-xs disabled:opacity-50"
+          className="hidden sm:flex items-center space-x-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-neutral-200 bg-white text-neutral-700 hover:text-black hover:border-neutral-300 transition-colors shadow-xs disabled:opacity-50"
           title={currentOrg?.hasStripeKey ? 'Sync live data from Stripe' : 'Connect Stripe key in Settings'}
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -151,7 +151,7 @@ export default function Header({ onMenuClick, user, currentOrg }) {
         {/* Record Payment Button */}
         <button
           onClick={() => dispatch(toggleRecordPaymentModal(true))}
-          className="flex items-center space-x-1 sm:space-x-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg bg-zinc-950 text-white hover:bg-zinc-800 active:scale-[0.98] transition-all shadow-xs"
+          className="flex items-center space-x-1 sm:space-x-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg bg-neutral-900 text-white hover:bg-neutral-800 active:scale-[0.98] transition-all shadow-xs"
           title="Record a real payment or invoice"
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -163,7 +163,7 @@ export default function Header({ onMenuClick, user, currentOrg }) {
         <button
           onClick={() => dispatch(setActiveTab('settings'))}
           title={`${displayName} (Open Settings)`}
-          className="w-7 h-7 rounded-full bg-zinc-100 border border-zinc-300 hover:border-zinc-400 flex items-center justify-center text-zinc-800 text-[11px] font-semibold flex-shrink-0 transition-colors"
+          className="w-7 h-7 rounded-full bg-neutral-900 border border-neutral-900 hover:bg-neutral-800 flex items-center justify-center text-white text-[11px] font-semibold flex-shrink-0 transition-colors"
         >
           {initials}
         </button>

@@ -17,7 +17,7 @@ export default function StatCard({
     <article className="linear-card tile-hover-shadow rounded-xl p-4 sm:p-5 relative overflow-visible cursor-default">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-1.5">
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
             {title}
           </h3>
           {tooltip && (
@@ -26,14 +26,14 @@ export default function StatCard({
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
                 onClick={() => setShowTooltip(!showTooltip)}
-                className="text-zinc-400 hover:text-zinc-600 focus:outline-none"
+                className="text-neutral-400 hover:text-neutral-700 focus:outline-none"
                 aria-label={`About ${title}`}
               >
                 <HelpCircle className="w-3.5 h-3.5" />
               </button>
 
               {showTooltip && (
-                <div className="absolute left-0 bottom-full mb-2 w-56 p-2.5 bg-zinc-950 text-white text-[11px] rounded-lg shadow-xl z-50 pointer-events-none leading-relaxed">
+                <div className="absolute left-0 bottom-full mb-2 w-56 p-2.5 bg-neutral-900 text-white text-[11px] rounded-lg shadow-xl z-50 pointer-events-none leading-relaxed">
                   {tooltip}
                 </div>
               )}
@@ -42,14 +42,14 @@ export default function StatCard({
         </div>
 
         {Icon && (
-          <div className="w-7 h-7 rounded-md bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-600">
+          <div className="w-7 h-7 rounded-md bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-800">
             <Icon className="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
           </div>
         )}
       </div>
 
       <div className="mt-2.5 flex items-baseline justify-between">
-        <p className="text-2xl sm:text-[26px] font-bold text-black tracking-tight tabular-nums">
+        <p className="text-2xl sm:text-[26px] font-bold text-neutral-950 tracking-tight tabular-nums">
           {value}
         </p>
       </div>
@@ -57,12 +57,12 @@ export default function StatCard({
       <div className="mt-2.5 flex items-center space-x-2 text-xs">
         {delta !== undefined && (
           <span
-            className={`inline-flex items-center space-x-0.5 px-1.5 py-0.2 rounded font-mono text-[11px] font-semibold ${
+            className={`inline-flex items-center space-x-0.5 px-1.5 py-0.2 rounded font-mono text-[11px] font-semibold border ${
               isPositive
-                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                ? 'bg-neutral-900 text-white border-neutral-900'
                 : isNegative
-                ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                : 'bg-zinc-100 text-zinc-700'
+                ? 'bg-neutral-100 text-neutral-600 border-neutral-300'
+                : 'bg-neutral-100 text-neutral-600 border-neutral-200'
             }`}
           >
             {isPositive && <ArrowUpRight className="w-3 h-3" aria-hidden="true" />}
@@ -71,7 +71,7 @@ export default function StatCard({
             <span>{isPositive ? `+${delta}%` : `${delta}%`}</span>
           </span>
         )}
-        <span className="text-[11px] text-zinc-500 font-medium">{subtitle}</span>
+        <span className="text-[11px] text-neutral-500 font-medium">{subtitle}</span>
       </div>
     </article>
   );

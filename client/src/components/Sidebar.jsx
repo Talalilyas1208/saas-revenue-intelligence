@@ -67,16 +67,16 @@ export default function Sidebar({ isOpen, onClose, organizations = [], subscribe
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-64 max-w-[80vw] bg-[#ffffff] border-r border-zinc-200 flex flex-col transition-transform duration-200 ease-out lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-64 max-w-[80vw] bg-[#FFFFFF] border-r border-neutral-200 flex flex-col transition-transform duration-200 ease-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Sidebar navigation"
       >
         {/* Brand & Workspace Switcher Header */}
-        <div className="p-4 border-b border-zinc-200 bg-[#fafafa]">
+        <div className="p-4 border-b border-neutral-200 bg-[#F5F5F5]/60">
           <div className="flex items-center justify-between mb-3.5">
             <div className="flex items-center space-x-2.5">
-              <div className="w-7 h-7 rounded-lg bg-white border border-zinc-200 flex items-center justify-center p-1 shadow-sm">
+              <div className="w-7 h-7 rounded-lg bg-white border border-neutral-200 flex items-center justify-center p-1 shadow-xs">
                 <img
                   src="/assets/logo.svg"
                   alt="RevTerm Logo"
@@ -86,10 +86,10 @@ export default function Sidebar({ isOpen, onClose, organizations = [], subscribe
                 />
               </div>
               <div>
-                <span className="font-bold text-sm tracking-tight text-zinc-950 block">
+                <span className="font-bold text-sm tracking-tight text-neutral-950 block">
                   RevTerm
                 </span>
-                <span className="text-[10px] text-zinc-500 font-mono block">
+                <span className="text-[10px] text-neutral-500 font-mono block">
                   Revenue Intelligence
                 </span>
               </div>
@@ -97,7 +97,7 @@ export default function Sidebar({ isOpen, onClose, organizations = [], subscribe
 
             <button
               onClick={onClose}
-              className="lg:hidden p-1.5 rounded-lg text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 transition-colors"
+              className="lg:hidden p-1.5 rounded-lg text-neutral-500 hover:text-neutral-950 hover:bg-neutral-100 transition-colors"
               aria-label="Close sidebar"
             >
               <X className="w-4 h-4" />
@@ -108,20 +108,20 @@ export default function Sidebar({ isOpen, onClose, organizations = [], subscribe
           <div className="relative">
             <button
               onClick={() => setIsWorkspaceMenuOpen(!isWorkspaceMenuOpen)}
-              className="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-white border border-zinc-200 hover:border-zinc-300 text-zinc-900 transition-colors shadow-xs"
+              className="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-white border border-neutral-200 hover:border-neutral-300 text-neutral-900 transition-colors shadow-xs"
               aria-expanded={isWorkspaceMenuOpen}
               aria-haspopup="listbox"
             >
               <div className="flex items-center space-x-2 truncate">
-                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${currentOrg.hasStripeKey ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
-                <span className="truncate text-[11px] font-semibold text-zinc-900">{currentOrg.name}</span>
+                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${currentOrg.hasStripeKey ? 'bg-neutral-900' : 'bg-neutral-400'}`} />
+                <span className="truncate text-[11px] font-semibold text-neutral-900">{currentOrg.name}</span>
               </div>
-              <ChevronDown className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0 ml-1" />
+              <ChevronDown className="w-3.5 h-3.5 text-neutral-400 flex-shrink-0 ml-1" />
             </button>
 
             {isWorkspaceMenuOpen && (
               <div
-                className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-lg shadow-xl py-1 z-50 animate-in fade-in duration-100"
+                className="absolute top-full left-0 right-0 mt-1 bg-white border border-neutral-200 rounded-lg shadow-xl py-1 z-50 animate-in fade-in duration-100"
                 role="listbox"
               >
                 {organizations.map((org) => (
@@ -131,28 +131,28 @@ export default function Sidebar({ isOpen, onClose, organizations = [], subscribe
                       dispatch(setActiveOrgId(org.id));
                       setIsWorkspaceMenuOpen(false);
                     }}
-                    className="w-full flex items-center justify-between px-3 py-1.5 text-xs text-left hover:bg-zinc-50 text-zinc-800 hover:text-black transition-colors font-medium"
+                    className="w-full flex items-center justify-between px-3 py-1.5 text-xs text-left hover:bg-neutral-50 text-neutral-800 hover:text-black transition-colors font-medium"
                     role="option"
                     aria-selected={currentOrg.id === org.id}
                   >
                     <span className="truncate">{org.name}</span>
-                    {currentOrg.id === org.id && <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />}
+                    {currentOrg.id === org.id && <Check className="w-3.5 h-3.5 text-neutral-900 flex-shrink-0" />}
                   </button>
                 ))}
 
-                <form onSubmit={handleCreateOrg} className="border-t border-zinc-100 mt-1 pt-1.5 px-2 pb-1">
+                <form onSubmit={handleCreateOrg} className="border-t border-neutral-100 mt-1 pt-1.5 px-2 pb-1">
                   <div className="flex items-center gap-1">
                     <input
                       type="text"
                       value={newOrgName}
                       onChange={(e) => setNewOrgName(e.target.value)}
                       placeholder="New workspace..."
-                      className="w-full px-2 py-1 text-[11px] bg-zinc-50 border border-zinc-200 rounded text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
+                      className="w-full px-2 py-1 text-[11px] bg-neutral-50 border border-neutral-200 rounded text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-400"
                     />
                     <button
                       type="submit"
                       disabled={isCreatingOrg || !newOrgName.trim()}
-                      className="p-1 rounded bg-zinc-950 text-white hover:bg-zinc-800 disabled:opacity-40"
+                      className="p-1 rounded bg-neutral-900 text-white hover:bg-neutral-800 disabled:opacity-40"
                       title="Create workspace"
                       aria-label="Create workspace"
                     >
@@ -167,7 +167,7 @@ export default function Sidebar({ isOpen, onClose, organizations = [], subscribe
 
         {/* Navigation links */}
         <nav className="flex-1 px-2.5 py-3 space-y-0.5 overflow-y-auto" aria-label="Main Navigation">
-          <div className="px-2.5 pt-1 pb-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+          <div className="px-2.5 pt-1 pb-1.5 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
             Workspace
           </div>
           {navItems.map((item) => {
@@ -179,20 +179,20 @@ export default function Sidebar({ isOpen, onClose, organizations = [], subscribe
                 onClick={() => handleNavClick(item.id)}
                 className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
                   isActive
-                    ? 'bg-zinc-100 text-zinc-950 font-semibold shadow-xs border border-zinc-200/60'
-                    : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50'
+                    ? 'bg-neutral-900 text-white font-semibold shadow-xs'
+                    : 'text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100'
                 }`}
               >
                 <div className="flex items-center space-x-2.5">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-zinc-950' : 'text-zinc-500'}`} strokeWidth={1.75} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-neutral-500'}`} strokeWidth={1.75} />
                   <span>{item.label}</span>
                 </div>
                 {item.badge && (
                   <span
                     className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-semibold ${
-                      item.badge === 'Live'
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        : 'bg-zinc-100 text-zinc-700'
+                      isActive
+                        ? 'bg-white/20 text-white'
+                        : 'bg-neutral-100 text-neutral-700 border border-neutral-200'
                     }`}
                   >
                     {item.badge}
@@ -202,50 +202,50 @@ export default function Sidebar({ isOpen, onClose, organizations = [], subscribe
             );
           })}
 
-          <div className="pt-5 px-2.5 pb-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+          <div className="pt-5 px-2.5 pb-1.5 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
             Platform
           </div>
           <a
             href="https://github.com/Talalilyas1208/saas-revenue-intelligence"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50 transition-colors"
+            className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 transition-colors"
           >
             <div className="flex items-center space-x-2.5">
-              <ShieldCheck className="w-4 h-4 text-zinc-500" strokeWidth={1.75} />
+              <ShieldCheck className="w-4 h-4 text-neutral-500" strokeWidth={1.75} />
               <span>Documentation</span>
             </div>
-            <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-neutral-400" />
           </a>
           <button
             onClick={() => dispatch(toggleProModal(true))}
-            className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50 transition-colors text-left"
+            className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 transition-colors text-left"
           >
             <div className="flex items-center space-x-2.5">
-              <CreditCard className="w-4 h-4 text-zinc-500" strokeWidth={1.75} />
+              <CreditCard className="w-4 h-4 text-neutral-500" strokeWidth={1.75} />
               <span>License Portal</span>
             </div>
-            <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-neutral-400" />
           </button>
         </nav>
 
         {/* Pro status & Sign Out */}
-        <div className="p-3 border-t border-zinc-200 bg-[#fafafa] space-y-2">
-          <div className="p-3 rounded-xl bg-white border border-zinc-200 shadow-xs">
+        <div className="p-3 border-t border-neutral-200 bg-[#F5F5F5]/60 space-y-2">
+          <div className="p-3 rounded-xl bg-white border border-neutral-200 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <span className={`w-2 h-2 rounded-full ${isProUnlocked ? 'bg-emerald-500' : 'bg-indigo-600'}`} />
-                <span className="text-xs font-bold text-zinc-950">
+                <span className={`w-2 h-2 rounded-full ${isProUnlocked ? 'bg-neutral-950' : 'bg-neutral-400'}`} />
+                <span className="text-xs font-bold text-neutral-950">
                   {isProUnlocked ? 'Pro License' : 'Community Tier'}
                 </span>
               </div>
-              <span className="text-[10px] text-zinc-400 font-mono">v1.0</span>
+              <span className="text-[10px] text-neutral-400 font-mono">v1.0</span>
             </div>
 
             {!isProUnlocked && (
               <button
                 onClick={() => dispatch(toggleProModal(true))}
-                className="w-full mt-2.5 px-2.5 py-1.5 text-xs font-semibold text-zinc-900 rounded-lg bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition-colors"
+                className="w-full mt-2.5 px-2.5 py-1.5 text-xs font-semibold text-neutral-900 rounded-lg bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 transition-colors"
               >
                 Upgrade to Pro
               </button>
@@ -254,7 +254,7 @@ export default function Sidebar({ isOpen, onClose, organizations = [], subscribe
 
           <button
             onClick={() => dispatch(setToken(''))}
-            className="w-full flex items-center justify-center space-x-1.5 px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+            className="w-full flex items-center justify-center space-x-1.5 px-2.5 py-1.5 text-xs font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-200/70 rounded-lg transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Sign Out</span>
