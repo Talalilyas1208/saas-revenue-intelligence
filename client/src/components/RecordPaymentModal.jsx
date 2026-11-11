@@ -18,27 +18,35 @@ export default function RecordPaymentModal() {
 
   if (!isRecordPaymentOpen) return null;
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setErrorMsg('');
-    try {
-      await recordTransaction({
-        organizationId: activeOrgId,
-        customerEmail,
-        amount: Number(amount),
-        eventType,
-        description: description || 'Manual Payment'
-      }).unwrap();
-
-      if (soundEnabled && eventType === 'charge.succeeded') {
-        playSaleChime();
-      }
-      setCustomerEmail('');
-      setDescription('');
-      dispatch(toggleRecordPaymentModal(false));
-    } catch (err) {
-      setErrorMsg(err?.data?.error || 'Failed to record transaction.');
+    const numAmount = Number(amount);
+    if (!customerEmail.trim() || isNaN(numAmount) || numAmount <= 0) {
+      setErrorMsg('Please enter a valid email and positive amount.');
+      return;
     }
+
+    const payload = {
+      organizationId: activeOrgId,
+      customerEmail: customerEmail.trim(),
+      amount: numAmount,
+      eventType,
+      description: description.trim() || 'Manual Payment'
+    };
+
+    if (soundEnabled && (eventType === 'charge.succeeded' || eventType === 'invoice.paid')) {
+      playSaleChime();
+    }
+
+    // Close modal & reset immediately while Redux optimistic cache displays record in 0ms
+    setCustomerEmail('');
+    setDescription('');
+    dispatch(toggleRecordPaymentModal(false));
+
+    recordTransaction(payload).unwrap().catch((err) => {
+      console.error('Failed to persist transaction:', err?.data?.error || err);
+    });
   };
 
   return (

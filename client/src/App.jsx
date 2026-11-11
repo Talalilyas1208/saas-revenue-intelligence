@@ -7,6 +7,7 @@ import {
   toggleRecordPaymentModal
 } from './features/ui/uiSlice.js';
 import {
+  apiSlice,
   useGetContextQuery,
   useGetSummaryQuery,
   useGetTransactionsQuery,
@@ -68,13 +69,21 @@ export default function App() {
     }
   }, [validOrg, activeOrgId, dispatch]);
 
+  // Warm Redux cache for 7D and 90D views so timeframe toggles feel instant
+  useEffect(() => {
+    if (token && effectiveOrgId) {
+      dispatch(apiSlice.util.prefetch('getSummary', { organizationId: effectiveOrgId, days: 7 }, { ifOlderThan: 60 }));
+      dispatch(apiSlice.util.prefetch('getSummary', { organizationId: effectiveOrgId, days: 90 }, { ifOlderThan: 60 }));
+    }
+  }, [token, effectiveOrgId, dispatch]);
+
   const days = RANGE_TO_DAYS[dateRange] || 30;
 
   const { data: summary } = useGetSummaryQuery(
     { organizationId: effectiveOrgId, days },
     {
       skip: !token || !effectiveOrgId,
-      pollingInterval: isLivePaused ? 0 : 4000
+      pollingInterval: isLivePaused ? 0 : 12000
     }
   );
 
@@ -82,7 +91,7 @@ export default function App() {
     { organizationId: effectiveOrgId, limit: 25 },
     {
       skip: !token || !effectiveOrgId,
-      pollingInterval: isLivePaused ? 0 : 4000
+      pollingInterval: isLivePaused ? 0 : 12000
     }
   );
 
@@ -90,7 +99,7 @@ export default function App() {
     { organizationId: effectiveOrgId },
     {
       skip: !token || !effectiveOrgId,
-      pollingInterval: 5000
+      pollingInterval: 15000
     }
   );
 

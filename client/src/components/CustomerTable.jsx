@@ -40,32 +40,35 @@ export default function CustomerTable({ customers = [] }) {
     canceled: customers.filter((c) => c.status === 'canceled').length
   };
 
-  const handleAddSubmit = async (e) => {
+  const handleAddSubmit = (e) => {
     e.preventDefault();
     setFormError('');
-    if (!newCustomer.name.trim() || !newCustomer.email.trim()) {
-      setFormError('Customer name and email are required.');
+    const mrrVal = Number(newCustomer.mrrContribution);
+    if (!newCustomer.name.trim() || !newCustomer.email.trim() || isNaN(mrrVal) || mrrVal <= 0) {
+      setFormError('Valid name, email, and positive MRR are required.');
       return;
     }
-    try {
-      await createCustomer({
-        organizationId: activeOrgId,
-        name: newCustomer.name,
-        email: newCustomer.email,
-        plan: newCustomer.plan,
-        mrrContribution: Number(newCustomer.mrrContribution) || 49
-      }).unwrap();
 
-      setNewCustomer({
-        name: '',
-        email: '',
-        plan: 'Pro Monthly ($49/mo)',
-        mrrContribution: '49.00'
-      });
-      setShowAddForm(false);
-    } catch (err) {
-      setFormError('Failed to add subscriber. Please check your inputs.');
-    }
+    const payload = {
+      organizationId: activeOrgId,
+      name: newCustomer.name.trim(),
+      email: newCustomer.email.trim(),
+      plan: newCustomer.plan,
+      mrrContribution: mrrVal
+    };
+
+    // Reset & close form immediately while Redux optimistic update renders subscriber & MRR in 0ms
+    setNewCustomer({
+      name: '',
+      email: '',
+      plan: 'Pro Monthly ($49/mo)',
+      mrrContribution: '49.00'
+    });
+    setShowAddForm(false);
+
+    createCustomer(payload).unwrap().catch((err) => {
+      console.error('Failed to persist subscriber:', err?.data?.error || err);
+    });
   };
 
   const handleCycleStatus = async (customer) => {

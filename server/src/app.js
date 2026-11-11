@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import morgan from 'morgan';
 import path from 'path';
 import fs from 'fs';
@@ -16,7 +17,8 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// 1. Security & utility middlewares
+// 1. Security, compression & utility middlewares
+app.use(compression({ threshold: 512 }));
 app.use(helmet({
   contentSecurityPolicy: false
 }));
