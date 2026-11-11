@@ -1,41 +1,51 @@
 # ⚡ RevTerm // SaaS Revenue Intelligence Platform
 
-A high-performance, commercial-grade SaaS revenue & metrics intelligence platform built with **Express.js**, **Sequelize ORM**, **React 18**, **Redux Toolkit (RTK Query)**, and a **Modern Glassmorphic Dark UI**.
+A production-ready SaaS revenue & billing intelligence platform built with **Express.js**, **Sequelize ORM**, **Supabase PostgreSQL**, **React 18**, **Redux Toolkit (RTK Query)**, and a **clean medium-white UI** (plus an optional Python Textual TUI companion).
+
+Repository: [https://github.com/Talalilyas1208/saas-revenue-intelligence](https://github.com/Talalilyas1208/saas-revenue-intelligence)
 
 ---
 
 ## 🌟 Architecture & Tech Stack
 
 ```text
-revterm/
+saas-revenue-intelligence/
 ├── server/                    # Layered Express.js + Sequelize Backend
 │   ├── src/
-│   │   ├── config/            # DB connection (PostgreSQL / SQLite) & Seed data
+│   │   ├── config/            # Supabase Postgres / SQLite connection
 │   │   ├── models/            # Sequelize Models (User, Organization, Transaction, Customer)
-│   │   ├── controllers/       # HTTP Request Handlers
-│   │   ├── services/          # Business logic & 30-day analytics aggregation
-│   │   ├── middlewares/       # Centralized error handler & JWT Auth
-│   │   ├── routes/            # REST API endpoints
-│   │   ├── app.js             # Express app setup & static SPA serving
+│   │   ├── controllers/       # Auth, Metrics, and Raw-Body Stripe Webhook controllers
+│   │   ├── services/          # Stripe SDK sync, TTL MetricsCache, and analytics aggregation
+│   │   ├── middlewares/       # Strict JWT Auth & centralized error handler
+│   │   ├── routes/            # /api/v1/auth & /api/v1/metrics routes
+│   │   ├── app.js             # Express app setup, SEO endpoints, & SPA serving
 │   │   └── server.js          # Server bootstrap & graceful shutdown
+│   ├── .env.example           # Environment variable template (never commit .env)
 │   └── package.json
 │
 ├── client/                    # React 18 + Redux Toolkit Frontend
 │   ├── src/
 │   │   ├── app/               # Redux store & RTK Query (apiSlice.js)
-│   │   ├── features/ui/       # UI slice (tabs, search, pro modal)
-│   │   ├── components/        # Reusable UI component kit
-│   │   │   ├── Navbar.jsx     # Header with live polling indicator & simulation trigger
-│   │   │   ├── StatCard.jsx   # Glassmorphic KPI cards with growth pills
-│   │   │   ├── RevenueChart.jsx # Interactive Recharts gradient area chart
-│   │   │   ├── LiveEventFeed.jsx # Real-time billing transactions stream
-│   │   │   ├── CustomerTable.jsx # Searchable customer directory & MRR sort
-│   │   │   └── LicenseModal.jsx # Pro licensing & cryptographic key activation
-│   │   ├── App.jsx            # Main dashboard view
+│   │   ├── features/ui/       # Auth token, active workspace, date range & UI state
+│   │   ├── components/        # Code-split lazy-loaded UI components
+│   │   │   ├── AuthScreen.jsx # Workspace setup & JWT sign-in
+│   │   │   ├── Sidebar.jsx    # Multi-workspace switcher & navigation
+│   │   │   ├── Header.jsx     # Global search (⌘K), date presets, Stripe sync & payment trigger
+│   │   │   ├── StatCard.jsx   # KPI cards with explainer tooltips
+│   │   │   ├── RevenueChart.jsx # Recharts area chart (7D / 30D / 90D / 1Y)
+│   │   │   ├── LiveEventFeed.jsx # Real-time billing stream with status filters
+│   │   │   ├── CustomerTable.jsx # Searchable subscriber directory, status toggle & CSV export
+│   │   │   ├── SettingsView.jsx # Profile, live Stripe API key verification & Supabase status
+│   │   │   ├── RecordPaymentModal.jsx # Manual invoice/payment recording
+│   │   │   └── LicenseModal.jsx # Polar.sh / HMAC Pro license activation
+│   │   ├── App.jsx
 │   │   └── main.jsx
-│   ├── vite.config.js
+│   ├── public/                # sitemap.xml, robots.txt, compressed SVG assets
+│   ├── vite.config.js         # Manual chunk splitting
 │   └── tailwind.config.js
 │
+├── supabase/
+│   └── schema.sql             # PostgreSQL schema, indexes & Row-Level Security lockdown
 ├── Dockerfile                 # Multi-stage production container
 └── docker-compose.yml         # Full-stack runtime with PostgreSQL
 ```
@@ -44,47 +54,34 @@ revterm/
 
 ## 🚀 Quickstart (Local Development)
 
-### 1. Launch the Server (Serves API + Built UI on Port 5001)
+### 1. Install Dependencies & Build Frontend
+```bash
+npm run install:all
+npm run build
+```
 
+### 2. Configure Environment (Private — Gitignored)
+```bash
+cp server/.env.example server/.env
+```
+Set `SUPABASE_DB_URL` (your Supabase Transaction/Session Pooler URI) and `JWT_SECRET` in `server/.env`. Apply `supabase/schema.sql` in your Supabase SQL Editor to enforce Row-Level Security.
+
+### 3. Start the Server
 ```bash
 npm start
 ```
 - Open [http://localhost:5001](http://localhost:5001) in your browser.
-- Health check available at [http://localhost:5001/health](http://localhost:5001/health).
-
-### 2. Run in Development Mode with Hot Reloading
-
-Terminal 1 (Backend):
-```bash
-npm run server:dev
-```
-
-Terminal 2 (Frontend with Vite HMR):
-```bash
-npm run client:dev
-```
-- Open [http://localhost:3000](http://localhost:3000).
+- Health check: [http://localhost:5001/health](http://localhost:5001/health)
 
 ---
 
-## 🌐 0-to-Publish Deployment Guide
+## 🌐 0-to-Publish Deployment
 
-### Option A: 1-Click Deploy to Render / Railway with Docker
-1. Push this repository to GitHub.
-2. In **Render** or **Railway**, create a new **Web Service** from your GitHub repo.
-3. Select **Docker** as the environment.
-4. Add environment variables:
+1. Push to GitHub (`main` branch).
+2. Create a Web Service on **Railway** or **Render** using the included `Dockerfile`.
+3. Configure environment variables:
    - `NODE_ENV=production`
-   - `DATABASE_URL` (Attach a managed PostgreSQL database)
-   - `JWT_SECRET` (A strong random secret key)
-5. Hit **Deploy**. The multi-stage Docker build will automatically build the frontend assets, bundle the backend, and start the service with automatic SSL!
-
-### Option B: Separate Frontend & Backend
-- **Frontend (Vercel)**:
-  - Root directory: `client`
-  - Build command: `npm run build`
-  - Output directory: `dist`
-  - Environment variable: `VITE_API_BASE_URL=https://your-backend.railway.app`
-- **Backend (Render / Railway / Fly.io)**:
-  - Root directory: `server`
-  - Start command: `npm start`
+   - `SUPABASE_DB_URL` (or managed `DATABASE_URL`)
+   - `JWT_SECRET`
+   - `STRIPE_WEBHOOK_SECRET` (optional, for live Stripe webhooks at `/api/v1/webhooks/stripe`)
+4. Deploy—the multi-stage build compiles the React frontend and launches Express on port `5001`.
