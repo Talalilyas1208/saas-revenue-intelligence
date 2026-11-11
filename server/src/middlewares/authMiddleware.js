@@ -1,21 +1,27 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'revterm_super_secret_jwt_key_2026';
+export function getJwtSecret() {
+  return process.env.JWT_SECRET || 'revterm_production_jwt_secret_key_change_in_env';
+}
 
 export function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    // In dev mode, attach default demo user if header is missing
-    req.user = { id: 'demo-user-id', email: 'founder@revterm.io', role: 'admin' };
-    return next();
+    return res.status(401).json({
+      success: false,
+      error: 'Authentication required. Please sign in.'
+    });
   }
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, getJwtSecret());
     req.user = decoded;
     next();
-  } catch (error) {
-    return res.status(401).json({ success: false, error: 'Invalid or expired authentication token' });
+  } catch {
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid or expired authentication token.'
+    });
   }
 }

@@ -1,6 +1,6 @@
 """
 revterm configuration and storage manager.
-Handles secure configuration, mock data toggling, and persistence.
+Handles Stripe API keys, backend URL, auth token, and license persistence.
 """
 from __future__ import annotations
 import json
@@ -14,9 +14,10 @@ CONFIG_FILE = DEFAULT_CONFIG_DIR / "config.json"
 
 @dataclass
 class AppConfig:
-    stripe_api_key: str = ""
+    stripe_api_key: str = os.environ.get("STRIPE_SECRET_KEY", "")
+    backend_url: str = os.environ.get("REVTERM_API_URL", "http://localhost:5001/api/v1")
+    auth_token: str = os.environ.get("REVTERM_AUTH_TOKEN", "")
     currency: str = "USD"
-    use_mock_data: bool = True
     theme: str = "stripe-dark"
     license_key: str = ""
     is_pro: bool = False

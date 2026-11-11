@@ -23,10 +23,14 @@ database.sqlite-journal
 *.sqlite
 *.db
 
-# Environment variables & secrets
+# Environment variables & secrets (NEVER commit to GitHub)
 .env
-.env.local
-.env.*.local
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+supabase/.temp/
 
 # Operating System files
 .DS_Store

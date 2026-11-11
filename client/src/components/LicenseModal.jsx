@@ -1,37 +1,44 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleProModal, unlockPro } from '../features/ui/uiSlice.js';
+import { toggleProModal } from '../features/ui/uiSlice.js';
+import { useVerifyLicenseMutation } from '../app/apiSlice.js';
 import { Zap, Check, X, ArrowUpRight, AlertCircle } from 'lucide-react';
 
 export default function LicenseModal() {
   const dispatch = useDispatch();
-  const { isProModalOpen, isProUnlocked } = useSelector((state) => state.ui);
+  const { isProModalOpen, activeOrgId } = useSelector((state) => state.ui);
   const [keyInput, setKeyInput] = useState('');
   const [feedback, setFeedback] = useState({ type: '', text: '' });
 
+  const [verifyLicense, { isLoading }] = useVerifyLicenseMutation();
+
   if (!isProModalOpen) return null;
 
-  const handleGenerateDemo = () => {
-    const demoKey = 'REV-PRO-FOUNDER2026-B817A9';
-    setKeyInput(demoKey);
-    setFeedback({ type: 'success', text: 'Generated valid cryptographic demo key' });
-  };
-
-  const handleActivate = (e) => {
+  const handleActivate = async (e) => {
     if (e) e.preventDefault();
     const cleanKey = keyInput.trim();
     if (!cleanKey) {
-      setFeedback({ type: 'error', text: 'Please enter a license key.' });
+      setFeedback({ type: 'error', text: 'Please enter your license key.' });
       return;
     }
-    if (cleanKey.startsWith('REV-PRO-')) {
-      dispatch(unlockPro());
-      setFeedback({ type: 'success', text: '✓ Pro license activated successfully!' });
+
+    try {
+      await verifyLicense({
+        organizationId: activeOrgId,
+        licenseKey: cleanKey
+      }).unwrap();
+
+      setFeedback({ type: 'success', text: '✓ Pro license verified and activated!' });
       setTimeout(() => {
         dispatch(toggleProModal(false));
+        setKeyInput('');
+        setFeedback({ type: '', text: '' });
       }, 1200);
-    } else {
-      setFeedback({ type: 'error', text: 'Invalid license format. Key must start with REV-PRO-' });
+    } catch (err) {
+      setFeedback({
+        type: 'error',
+        text: err?.data?.error || 'Invalid or expired license key.'
+      });
     }
   };
 
@@ -79,7 +86,7 @@ export default function LicenseModal() {
 
         <div className="mt-4 space-y-2 text-xs text-zinc-700 font-medium">
           {[
-            'Multi-Project / Multiple Stripe Account Switching',
+            'Unlimited Stripe Accounts & Multi-Workspace Sync',
             'Real-Time Webhook Chime Daemon & Desktop Alerts',
             'Customer Churn Radar & Card Expiration Alerts',
             'Export Historical CSVs & Tax Summary'
@@ -103,7 +110,7 @@ export default function LicenseModal() {
                 setKeyInput(e.target.value);
                 if (feedback.text) setFeedback({ type: '', text: '' });
               }}
-              placeholder="REV-PRO-XXXXX-XXXXXX"
+              placeholder="Enter your license key..."
               className="w-full px-3 py-2 text-xs font-mono bg-zinc-50 border border-zinc-200 rounded-lg text-black placeholder-zinc-400 focus:bg-white focus:outline-none focus:border-zinc-400 transition-colors"
               autoFocus
             />
@@ -122,16 +129,17 @@ export default function LicenseModal() {
           <div className="flex items-center justify-end space-x-2 pt-1">
             <button
               type="button"
-              onClick={handleGenerateDemo}
+              onClick={() => dispatch(toggleProModal(false))}
               className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border border-zinc-200 transition-colors"
             >
-              Demo Key
+              Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-1.5 text-xs font-bold rounded-lg bg-zinc-950 text-white hover:bg-zinc-800 active:scale-95 transition-all shadow-xs"
+              disabled={isLoading}
+              className="px-4 py-1.5 text-xs font-bold rounded-lg bg-zinc-950 text-white hover:bg-zinc-800 active:scale-95 transition-all shadow-xs disabled:opacity-50"
             >
-              Activate Key
+              {isLoading ? 'Verifying...' : 'Activate Key'}
             </button>
           </div>
         </form>

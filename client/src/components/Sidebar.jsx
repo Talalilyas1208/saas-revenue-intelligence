@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setActiveTab, toggleProModal, setActiveWorkspace } from '../features/ui/uiSlice.js';
+import { setActiveTab, toggleProModal, setActiveOrgId, setToken } from '../features/ui/uiSlice.js';
+import { useCreateOrganizationMutation } from '../app/apiSlice.js';
 import {
   LayoutDashboard,
   Activity,
@@ -11,20 +12,28 @@ import {
   ShieldCheck,
   ArrowUpRight,
   X,
-  CreditCard
+  CreditCard,
+  Plus,
+  LogOut
 } from 'lucide-react';
 
-export default function Sidebar({ isOpen, onClose }) {
+export default function Sidebar({ isOpen, onClose, organizations = [], subscriberCount = 0 }) {
   const dispatch = useDispatch();
-  const { activeTab, isProUnlocked, activeWorkspace } = useSelector((state) => state.ui);
+  const { activeTab, activeOrgId } = useSelector((state) => state.ui);
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
+  const [newOrgName, setNewOrgName] = useState('');
+  const [createOrganization, { isLoading: isCreatingOrg }] = useCreateOrganizationMutation();
 
-  const workspaces = ['SaaSify Inc', 'Acme E-Commerce', 'DevTools Pro (Test)'];
+  const currentOrg =
+    organizations.find((o) => o.id === activeOrgId) ||
+    organizations[0] || { id: '', name: 'Workspace', planTier: 'free' };
+
+  const isProUnlocked = currentOrg.planTier === 'pro' || currentOrg.planTier === 'enterprise';
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'feed', label: 'Live Stream', icon: Activity, badge: 'Live' },
-    { id: 'customers', label: 'Subscribers', icon: Users, badge: '7' },
+    { id: 'customers', label: 'Subscribers', icon: Users, badge: String(subscriberCount) },
     { id: 'settings', label: 'Settings & Keys', icon: Settings }
   ];
 
@@ -33,9 +42,22 @@ export default function Sidebar({ isOpen, onClose }) {
     if (onClose) onClose();
   };
 
+  const handleCreateOrg = async (e) => {
+    e.preventDefault();
+    const clean = newOrgName.trim();
+    if (!clean) return;
+    try {
+      const created = await createOrganization({ name: clean }).unwrap();
+      dispatch(setActiveOrgId(created.id));
+      setNewOrgName('');
+      setIsWorkspaceMenuOpen(false);
+    } catch (err) {
+      console.error('Failed to create workspace', err);
+    }
+  };
+
   return (
     <>
-      {/* Mobile overlay */}
       {isOpen && (
         <div
           onClick={onClose}
@@ -73,7 +95,6 @@ export default function Sidebar({ isOpen, onClose }) {
               </div>
             </div>
 
-            {/* Mobile Close Button */}
             <button
               onClick={onClose}
               className="lg:hidden p-1.5 rounded-lg text-zinc-500 hover:text-zinc-950 hover:bg-zinc-100 transition-colors"
@@ -83,7 +104,7 @@ export default function Sidebar({ isOpen, onClose }) {
             </button>
           </div>
 
-          {/* Workspace dropdown button */}
+          {/* Dynamic Workspace Dropdown */}
           <div className="relative">
             <button
               onClick={() => setIsWorkspaceMenuOpen(!isWorkspaceMenuOpen)}
@@ -92,8 +113,8 @@ export default function Sidebar({ isOpen, onClose }) {
               aria-haspopup="listbox"
             >
               <div className="flex items-center space-x-2 truncate">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-                <span className="truncate text-[11px] font-semibold text-zinc-900">{activeWorkspace}</span>
+                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${currentOrg.hasStripeKey ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
+                <span className="truncate text-[11px] font-semibold text-zinc-900">{currentOrg.name}</span>
               </div>
               <ChevronDown className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0 ml-1" />
             </button>
@@ -103,21 +124,42 @@ export default function Sidebar({ isOpen, onClose }) {
                 className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-lg shadow-xl py-1 z-50 animate-in fade-in duration-100"
                 role="listbox"
               >
-                {workspaces.map((ws) => (
+                {organizations.map((org) => (
                   <button
-                    key={ws}
+                    key={org.id}
                     onClick={() => {
-                      dispatch(setActiveWorkspace(ws));
+                      dispatch(setActiveOrgId(org.id));
                       setIsWorkspaceMenuOpen(false);
                     }}
                     className="w-full flex items-center justify-between px-3 py-1.5 text-xs text-left hover:bg-zinc-50 text-zinc-800 hover:text-black transition-colors font-medium"
                     role="option"
-                    aria-selected={activeWorkspace === ws}
+                    aria-selected={currentOrg.id === org.id}
                   >
-                    <span>{ws}</span>
-                    {activeWorkspace === ws && <Check className="w-3.5 h-3.5 text-emerald-600" />}
+                    <span className="truncate">{org.name}</span>
+                    {currentOrg.id === org.id && <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />}
                   </button>
                 ))}
+
+                <form onSubmit={handleCreateOrg} className="border-t border-zinc-100 mt-1 pt-1.5 px-2 pb-1">
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="text"
+                      value={newOrgName}
+                      onChange={(e) => setNewOrgName(e.target.value)}
+                      placeholder="New workspace..."
+                      className="w-full px-2 py-1 text-[11px] bg-zinc-50 border border-zinc-200 rounded text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
+                    />
+                    <button
+                      type="submit"
+                      disabled={isCreatingOrg || !newOrgName.trim()}
+                      className="p-1 rounded bg-zinc-950 text-white hover:bg-zinc-800 disabled:opacity-40"
+                      title="Create workspace"
+                      aria-label="Create workspace"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                </form>
               </div>
             )}
           </div>
@@ -164,7 +206,7 @@ export default function Sidebar({ isOpen, onClose }) {
             Platform
           </div>
           <a
-            href="https://github.com/revterm"
+            href="https://github.com/Talalilyas1208/saas-revenue-intelligence"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50 transition-colors"
@@ -187,8 +229,8 @@ export default function Sidebar({ isOpen, onClose }) {
           </button>
         </nav>
 
-        {/* Pro status card at bottom */}
-        <div className="p-3 border-t border-zinc-200 bg-[#fafafa]">
+        {/* Pro status & Sign Out */}
+        <div className="p-3 border-t border-zinc-200 bg-[#fafafa] space-y-2">
           <div className="p-3 rounded-xl bg-white border border-zinc-200 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -209,6 +251,14 @@ export default function Sidebar({ isOpen, onClose }) {
               </button>
             )}
           </div>
+
+          <button
+            onClick={() => dispatch(setToken(''))}
+            className="w-full flex items-center justify-center space-x-1.5 px-2.5 py-1.5 text-xs font-medium text-zinc-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Sign Out</span>
+          </button>
         </div>
       </aside>
     </>

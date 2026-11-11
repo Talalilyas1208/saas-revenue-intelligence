@@ -116,6 +116,15 @@ export default function LiveEventFeed({ transactions = [] }) {
               second: '2-digit'
             });
 
+            const isRevenue =
+              tx.eventType.includes('succeeded') ||
+              tx.eventType.includes('paid') ||
+              tx.eventType.includes('created');
+            const formattedAmt = Number(tx.amount).toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            });
+
             return (
               <div
                 key={tx.id}
@@ -137,8 +146,12 @@ export default function LiveEventFeed({ transactions = [] }) {
                 </div>
 
                 <div className="text-right pl-3 flex-shrink-0">
-                  <span className="font-mono text-xs font-bold text-black tabular-nums block">
-                    +${Number(tx.amount).toFixed(2)}
+                  <span
+                    className={`font-mono text-xs font-bold tabular-nums block ${
+                      isRevenue ? 'text-black' : 'text-rose-600 line-through'
+                    }`}
+                  >
+                    {isRevenue ? `+$${formattedAmt}` : `$${formattedAmt}`}
                   </span>
                   <span className="text-[10px] font-mono text-zinc-400 block">
                     {timeStr}

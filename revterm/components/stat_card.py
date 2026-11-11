@@ -66,7 +66,7 @@ class StatCard(Widget):
             elif self.delta_pct < 0:
                 content.append(f" ▼ {self.delta_pct:.1f}% ", style="bold black on bright_red")
             else:
-                content.append(" ▬ 0.0% ", style="bold white on dim")
+                content.append(" ▬ 0.0% ", style="bold white on grey23")
             content.append(" ")
 
         if self.subtitle:

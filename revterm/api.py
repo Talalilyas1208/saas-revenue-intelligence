@@ -1,110 +1,179 @@
 """
-API client with built-in live Stripe integration and high-fidelity mock engine.
-Ensures zero-crash execution, offline resilience, and fast background fetches.
+Live API client for revterm TUI.
+Connects directly to the live Stripe REST API or your RevTerm Express Backend.
 """
 from __future__ import annotations
-import random
-from datetime import datetime, timedelta
-from typing import List, Tuple
+from datetime import datetime
+from typing import List
+import httpx
 from revterm.state import MetricSummary, TransactionEvent, CustomerRecord
 
 
 class MetricsProvider:
-    """Provides metrics and real-time event streaming for revterm."""
+    """Fetches real metrics, customers, and transactions from Stripe or RevTerm API."""
 
-    def __init__(self, stripe_key: str = "", use_mock: bool = True) -> None:
-        self.stripe_key = stripe_key
-        self.use_mock = use_mock or not bool(stripe_key)
+    def __init__(
+        self,
+        stripe_key: str = "",
+        backend_url: str = "http://localhost:5001/api/v1",
+        auth_token: str = "",
+    ) -> None:
+        self.stripe_key = stripe_key.strip()
+        self.backend_url = backend_url.rstrip("/")
+        self.auth_token = auth_token.strip()
 
     async def fetch_summary(self) -> MetricSummary:
-        if self.use_mock:
-            return self._generate_mock_summary()
-        return await self._fetch_live_summary()
+        if self.stripe_key:
+            return await self._fetch_stripe_summary()
+        if self.auth_token:
+            return await self._fetch_backend_summary()
+        return MetricSummary()
 
-    async def fetch_recent_events(self, limit: int = 15) -> List[TransactionEvent]:
-        if self.use_mock:
-            return self._generate_mock_events(limit)
-        return await self._fetch_live_events(limit)
+    async def fetch_recent_events(self, limit: int = 20) -> List[TransactionEvent]:
+        if self.stripe_key:
+            return await self._fetch_stripe_events(limit)
+        if self.auth_token:
+            return await self._fetch_backend_events(limit)
+        return []
 
     async def fetch_customers(self) -> List[CustomerRecord]:
-        if self.use_mock:
-            return self._generate_mock_customers()
-        return await self._fetch_live_customers()
+        if self.stripe_key:
+            return await self._fetch_stripe_customers()
+        if self.auth_token:
+            return await self._fetch_backend_customers()
+        return []
 
-    def _generate_mock_summary(self) -> MetricSummary:
-        # 30-day realistic revenue trend
-        base = 8200.0
-        trend: List[float] = []
-        for i in range(30):
-            variance = (random.random() - 0.45) * 450
-            base = max(4000.0, base + variance)
-            trend.append(round(base, 2))
+    async def _fetch_backend_summary(self) -> MetricSummary:
+        headers = {"Authorization": f"Bearer {self.auth_token}"}
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(f"{self.backend_url}/metrics/summary", headers=headers)
+            resp.raise_for_status()
+            data = resp.json().get("data", {})
+            trend = [float(item["revenue"]) for item in data.get("dailyTrend", [])]
+            return MetricSummary(
+                mrr=float(data.get("mrr", 0.0)),
+                arr=float(data.get("arr", 0.0)),
+                active_subscribers=int(data.get("activeSubscribers", 0)),
+                churn_rate=float(data.get("churnRate", 0.0)),
+                mrr_growth_pct=float(data.get("mrrGrowthPct", 0.0)),
+                daily_revenue_trend=trend,
+            )
 
-        latest_mrr = trend[-1]
-        arr = latest_mrr * 12.0
-        growth = round(((trend[-1] - trend[0]) / trend[0]) * 100, 1)
+    async def _fetch_backend_events(self, limit: int) -> List[TransactionEvent]:
+        headers = {"Authorization": f"Bearer {self.auth_token}"}
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                f"{self.backend_url}/metrics/transactions?limit={limit}",
+                headers=headers,
+            )
+            resp.raise_for_status()
+            rows = resp.json().get("data", [])
+            return [
+                TransactionEvent(
+                    id=r["id"],
+                    event_type=r["eventType"],
+                    amount=float(r["amount"]),
+                    currency=r.get("currency", "usd"),
+                    customer_email=r["customerEmail"],
+                    created_at=datetime.fromisoformat(r["occurredAt"].replace("Z", "+00:00")),
+                    description=r.get("description", ""),
+                )
+                for r in rows
+            ]
 
+    async def _fetch_backend_customers(self) -> List[CustomerRecord]:
+        headers = {"Authorization": f"Bearer {self.auth_token}"}
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(f"{self.backend_url}/metrics/customers", headers=headers)
+            resp.raise_for_status()
+            rows = resp.json().get("data", [])
+            return [
+                CustomerRecord(
+                    id=r["id"],
+                    name=r["name"],
+                    email=r["email"],
+                    plan=r["plan"],
+                    mrr_contribution=float(r["mrrContribution"]),
+                    status=r["status"],
+                    joined_date=r["joinedDate"],
+                )
+                for r in rows
+            ]
+
+    async def _fetch_stripe_summary(self) -> MetricSummary:
+        customers = await self._fetch_stripe_customers()
+        active = [c for c in customers if c.status == "active"]
+        canceled = [c for c in customers if c.status == "canceled"]
+        mrr = sum(c.mrr_contribution for c in active)
+        churn = (len(canceled) / len(customers) * 100.0) if customers else 0.0
+        events = await self._fetch_stripe_events(30)
+        trend = [e.amount for e in reversed(events) if "succeeded" in e.event_type] or [0.0]
         return MetricSummary(
-            mrr=latest_mrr,
-            arr=arr,
-            active_subscribers=314,
-            churn_rate=2.1,
-            mrr_growth_pct=growth,
+            mrr=round(mrr, 2),
+            arr=round(mrr * 12.0, 2),
+            active_subscribers=len(active),
+            churn_rate=round(churn, 1),
+            mrr_growth_pct=0.0,
             daily_revenue_trend=trend,
         )
 
-    def _generate_mock_events(self, count: int) -> List[TransactionEvent]:
-        event_types: List[Tuple[str, float, str]] = [
-            ("charge.succeeded", 49.00, "Pro Plan Monthly"),
-            ("charge.succeeded", 290.00, "Pro Plan Annual"),
-            ("subscription.created", 99.00, "Team Tier Monthly"),
-            ("charge.succeeded", 19.00, "Starter Plan"),
-            ("charge.failed", 49.00, "Card Expired (Pro Monthly)"),
-            ("customer.subscription.deleted", 29.00, "Canceled Subscription"),
-        ]
-
-        domains = ["gmail.com", "proton.me", "hey.com", "acme.io", "startup.sh", "dev.to"]
-        first_names = ["alex", "jordan", "taylor", "morgan", "sam", "casey", "riley", "chris"]
-
-        now = datetime.now()
-        events: List[TransactionEvent] = []
-
-        for i in range(count):
-            etype, amount, desc = random.choice(event_types)
-            user = f"{random.choice(first_names)}{random.randint(10, 99)}@{random.choice(domains)}"
-            timestamp = now - timedelta(minutes=i * random.randint(4, 25))
-
-            events.append(
-                TransactionEvent(
-                    id=f"evt_{i:04d}_{random.randint(1000, 9999)}",
-                    event_type=etype,
-                    amount=amount,
-                    currency="usd",
-                    customer_email=user,
-                    created_at=timestamp,
-                    description=desc,
-                )
+    async def _fetch_stripe_events(self, limit: int) -> List[TransactionEvent]:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                f"https://api.stripe.com/v1/charges?limit={limit}",
+                auth=(self.stripe_key, ""),
             )
-        return events
+            resp.raise_for_status()
+            charges = resp.json().get("data", [])
+            return [
+                TransactionEvent(
+                    id=c["id"],
+                    event_type="charge.succeeded" if c.get("paid") else "charge.failed",
+                    amount=float(c.get("amount", 0)) / 100.0,
+                    currency=c.get("currency", "usd"),
+                    customer_email=(c.get("billing_details") or {}).get("email") or c.get("receipt_email") or "stripe@customer",
+                    created_at=datetime.fromtimestamp(c.get("created", 0)),
+                    description=c.get("description") or "Stripe Charge",
+                )
+                for c in charges
+            ]
 
-    def _generate_mock_customers(self) -> List[CustomerRecord]:
-        return [
-            CustomerRecord("cus_01", "Acme Labs", "ops@acme.io", "Enterprise ($299/mo)", 299.0, "active", "2026-01-15"),
-            CustomerRecord("cus_02", "Alex Mercer", "alex@mercer.dev", "Pro Annual ($290/yr)", 24.16, "active", "2026-03-02"),
-            CustomerRecord("cus_03", "HyperScale Inc", "finance@hyperscale.co", "Team Tier ($99/mo)", 99.0, "active", "2026-05-18"),
-            CustomerRecord("cus_04", "Veloce Studio", "billing@veloce.design", "Pro Monthly ($49/mo)", 49.0, "past_due", "2026-06-11"),
-            CustomerRecord("cus_05", "DevForge Co", "founders@devforge.ai", "Team Tier ($99/mo)", 99.0, "active", "2026-07-29"),
-            CustomerRecord("cus_06", "CodeCraft", "admin@codecraft.org", "Starter ($19/mo)", 19.0, "canceled", "2026-08-14"),
-            CustomerRecord("cus_07", "Solopreneur HQ", "dan@solopreneur.cc", "Pro Monthly ($49/mo)", 49.0, "active", "2026-09-01"),
-        ]
-
-    async def _fetch_live_summary(self) -> MetricSummary:
-        # Placeholder for live stripe-python SDK / REST calls
-        # Falls back gracefully to mock if network or key fails
-        return self._generate_mock_summary()
-
-    async def _fetch_live_events(self, limit: int) -> List[TransactionEvent]:
-        return self._generate_mock_events(limit)
-
-    async def _fetch_live_customers(self) -> List[CustomerRecord]:
-        return self._generate_mock_customers()
+    async def _fetch_stripe_customers(self) -> List[CustomerRecord]:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                "https://api.stripe.com/v1/subscriptions?status=all&limit=100&expand[]=data.customer",
+                auth=(self.stripe_key, ""),
+            )
+            resp.raise_for_status()
+            subs = resp.json().get("data", [])
+            records: List[CustomerRecord] = []
+            for sub in subs:
+                cust = sub.get("customer") or {}
+                email = cust.get("email", "unknown@stripe.local") if isinstance(cust, dict) else str(cust)
+                name = cust.get("name") or email.split("@")[0] if isinstance(cust, dict) else email
+                items = (sub.get("items") or {}).get("data", [])
+                mrr = 0.0
+                plan_name = "Subscription"
+                if items:
+                    price = items[0].get("price") or {}
+                    amt = float(price.get("unit_amount", 0)) / 100.0
+                    interval = (price.get("recurring") or {}).get("interval", "month")
+                    mrr = amt / 12.0 if interval == "year" else amt
+                    plan_name = price.get("nickname") or f"Plan (${amt:.2f}/{interval})"
+                status = "active"
+                if sub.get("status") in ("past_due", "unpaid"):
+                    status = "past_due"
+                elif sub.get("status") == "canceled":
+                    status = "canceled"
+                records.append(
+                    CustomerRecord(
+                        id=sub["id"],
+                        name=name,
+                        email=email,
+                        plan=plan_name,
+                        mrr_contribution=round(mrr, 2),
+                        status=status,
+                        joined_date=datetime.fromtimestamp(sub.get("created", 0)).strftime("%Y-%m-%d"),
+                    )
+                )
+            return records

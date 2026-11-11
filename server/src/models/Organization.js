@@ -19,6 +19,10 @@ const Organization = sequelize.define('Organization', {
     type: DataTypes.STRING,
     allowNull: true
   },
+  stripeApiKey: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   currency: {
     type: DataTypes.STRING(3),
     defaultValue: 'usd'

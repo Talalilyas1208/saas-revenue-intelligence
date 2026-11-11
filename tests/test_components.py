@@ -38,8 +38,18 @@ def test_sparkline_chart_render() -> None:
 
 
 def test_event_feed_render() -> None:
-    provider = MetricsProvider(use_mock=True)
-    events = provider._generate_mock_events(5)
+    from datetime import datetime
+    events = [
+        TransactionEvent(
+            id="ch_123",
+            event_type="charge.succeeded",
+            amount=49.0,
+            currency="usd",
+            customer_email="billing@acme.io",
+            created_at=datetime.now(),
+            description="Pro Monthly",
+        )
+    ]
     feed = EventFeed(events=events)
     rendered = feed.render()
     assert rendered is not None

@@ -1,7 +1,13 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { toggleProModal } from './features/ui/uiSlice.js';
 import {
+  toggleProModal,
+  setActiveOrgId,
+  setActiveTab,
+  toggleRecordPaymentModal
+} from './features/ui/uiSlice.js';
+import {
+  useGetContextQuery,
   useGetSummaryQuery,
   useGetTransactionsQuery,
   useGetCustomersQuery
@@ -9,7 +15,8 @@ import {
 import Sidebar from './components/Sidebar.jsx';
 import Header from './components/Header.jsx';
 import StatCard from './components/StatCard.jsx';
-import { DollarSign, TrendingUp, Users, AlertCircle } from 'lucide-react';
+import AuthScreen from './components/AuthScreen.jsx';
+import { DollarSign, TrendingUp, Users, AlertCircle, Key, Plus } from 'lucide-react';
 
 // Lazy-loaded components for optimal initial bundle & fast LCP
 const RevenueChart = lazy(() => import('./components/RevenueChart.jsx'));
@@ -17,8 +24,15 @@ const LiveEventFeed = lazy(() => import('./components/LiveEventFeed.jsx'));
 const CustomerTable = lazy(() => import('./components/CustomerTable.jsx'));
 const SettingsView = lazy(() => import('./components/SettingsView.jsx'));
 const LicenseModal = lazy(() => import('./components/LicenseModal.jsx'));
+const RecordPaymentModal = lazy(() => import('./components/RecordPaymentModal.jsx'));
 
-// Sleek loading skeleton
+const RANGE_TO_DAYS = {
+  '7D': 7,
+  '30D': 30,
+  '90D': 90,
+  '1Y': 365
+};
+
 function SectionSkeleton({ height = 'h-64' }) {
   return (
     <div className={`linear-card rounded-xl p-5 ${height} flex flex-col justify-between animate-pulse`}>
@@ -37,44 +51,114 @@ function SectionSkeleton({ height = 'h-64' }) {
 
 export default function App() {
   const dispatch = useDispatch();
-  const { activeTab, isLivePaused } = useSelector((state) => state.ui);
+  const { token, activeTab, isLivePaused, activeOrgId, dateRange } = useSelector((state) => state.ui);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Poll backend every 3 seconds for real-time live data (respects pause toggle)
-  const { data: summary } = useGetSummaryQuery(undefined, {
-    pollingInterval: isLivePaused ? 0 : 3000
-  });
+  const { data: context } = useGetContextQuery(undefined, { skip: !token });
+  const organizations = context?.organizations || [];
+  const user = context?.user || null;
 
-  const { data: transactions = [] } = useGetTransactionsQuery(25, {
-    pollingInterval: isLivePaused ? 0 : 3000
-  });
+  const validOrg =
+    organizations.find((o) => o.id === activeOrgId) || organizations[0] || null;
+  const effectiveOrgId = validOrg ? validOrg.id : '';
 
-  const { data: customers = [] } = useGetCustomersQuery('', {
-    pollingInterval: 5000
-  });
+  useEffect(() => {
+    if (validOrg && validOrg.id !== activeOrgId) {
+      dispatch(setActiveOrgId(validOrg.id));
+    }
+  }, [validOrg, activeOrgId, dispatch]);
+
+  const days = RANGE_TO_DAYS[dateRange] || 30;
+
+  const { data: summary } = useGetSummaryQuery(
+    { organizationId: effectiveOrgId, days },
+    {
+      skip: !token || !effectiveOrgId,
+      pollingInterval: isLivePaused ? 0 : 4000
+    }
+  );
+
+  const { data: transactions = [] } = useGetTransactionsQuery(
+    { organizationId: effectiveOrgId, limit: 25 },
+    {
+      skip: !token || !effectiveOrgId,
+      pollingInterval: isLivePaused ? 0 : 4000
+    }
+  );
+
+  const { data: customers = [] } = useGetCustomersQuery(
+    { organizationId: effectiveOrgId },
+    {
+      skip: !token || !effectiveOrgId,
+      pollingInterval: 5000
+    }
+  );
+
+  if (!token) {
+    return <AuthScreen />;
+  }
+
+  const firstName = user?.name ? user.name.split(' ')[0] : 'Founder';
+  const showOnboarding =
+    validOrg && !validOrg.hasStripeKey && customers.length === 0 && transactions.length === 0;
 
   return (
     <div className="min-h-screen bg-[#f4f4f6] bg-grid-pattern text-zinc-900 flex selection:bg-indigo-600 selection:text-white">
-      {/* Sidebar Navigation */}
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        organizations={organizations}
+        subscriberCount={customers.length}
+      />
 
-      {/* Main Layout Area */}
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
-        {/* Global Header */}
-        <Header onMenuClick={() => setIsSidebarOpen(true)} />
+        <Header
+          onMenuClick={() => setIsSidebarOpen(true)}
+          user={user}
+          currentOrg={validOrg}
+        />
 
-        {/* Main Content Container */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-6">
-          {/* Exactly ONE <h1> tag on the page with animated hand greeting */}
-          <div className="pb-1">
-            <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight flex items-center gap-2">
-              <span>Welcome back, Alex</span>
-              <span className="animate-wave text-2xl select-none" role="img" aria-label="Waving hand">👋</span>
-            </h1>
-            <p className="text-xs text-zinc-600 mt-1">
-              Here is what is happening with your SaaS telemetry, revenue trajectory, and subscriber retention today.
-            </p>
+          {/* Exactly ONE <h1> tag on the page */}
+          <div className="pb-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight flex items-center gap-2">
+                <span>Welcome back, {firstName}</span>
+                <span className="animate-wave text-2xl select-none" role="img" aria-label="Waving hand">👋</span>
+              </h1>
+              <p className="text-xs text-zinc-600 mt-1">
+                Live telemetry for <span className="font-semibold text-zinc-900">{validOrg?.name || 'your workspace'}</span> · {dateRange} performance window.
+              </p>
+            </div>
           </div>
+
+          {/* Empty State Onboarding Banner (Only shown when brand new workspace has 0 records & no Stripe key) */}
+          {showOnboarding && activeTab === 'overview' && (
+            <div className="linear-card rounded-xl p-5 border border-indigo-200 bg-indigo-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-sm font-bold text-black">Connect your live revenue source</h2>
+                <p className="text-xs text-zinc-600 mt-0.5">
+                  Link your Stripe Restricted API Key to automatically import real subscriptions and charges, or record your first subscriber manually.
+                </p>
+              </div>
+              <div className="flex items-center space-x-2 flex-shrink-0">
+                <button
+                  onClick={() => dispatch(setActiveTab('settings'))}
+                  className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-zinc-950 text-white hover:bg-zinc-800 transition-colors"
+                >
+                  <Key className="w-3.5 h-3.5" />
+                  <span>Connect Stripe</span>
+                </button>
+                <button
+                  onClick={() => dispatch(toggleRecordPaymentModal(true))}
+                  className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-zinc-200 text-zinc-800 hover:bg-zinc-50 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Record Payment</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Section: High-Level Performance Indicators */}
           <section aria-labelledby="kpi-heading">
@@ -83,8 +167,8 @@ export default function App() {
               <StatCard
                 title="Monthly Recurring (MRR)"
                 value={`$${(summary?.mrr || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
-                delta={summary?.mrrGrowthPct || 14.8}
-                subtitle="growth"
+                delta={summary?.mrrGrowthPct ?? 0}
+                subtitle={`vs prev ${Math.floor(days / 2)}d`}
                 icon={DollarSign}
                 tooltip="Monthly Recurring Revenue: The predictable subscription revenue expected every month from active customers."
               />
@@ -97,22 +181,22 @@ export default function App() {
               />
               <StatCard
                 title="Active Subscribers"
-                value={summary?.activeSubscribers || 0}
-                subtitle="customers"
+                value={summary?.activeSubscribers ?? 0}
+                subtitle={`of ${summary?.totalSubscribers ?? 0} total`}
                 icon={Users}
                 tooltip="Active Subscribers: Total number of organizations with healthy, active recurring billing."
               />
               <StatCard
                 title="Customer Churn Rate"
-                value={`${summary?.churnRate || 0}%`}
-                subtitle="last 30 days"
+                value={`${summary?.churnRate ?? 0}%`}
+                subtitle="canceled share"
                 icon={AlertCircle}
-                tooltip="Churn Rate: The percentage of customers who canceled their subscription within the last 30 days."
+                tooltip="Churn Rate: The percentage of customers whose subscriptions are canceled."
               />
             </div>
           </section>
 
-          {/* Tab Content Switching with Lazy Loading Suspense */}
+          {/* Tab Content Switching */}
           {activeTab === 'overview' && (
             <div className="space-y-6 animate-in fade-in duration-200">
               <section aria-label="Revenue Chart Section">
@@ -159,7 +243,7 @@ export default function App() {
           {activeTab === 'settings' && (
             <div className="animate-in fade-in duration-200">
               <Suspense fallback={<SectionSkeleton height="h-80" />}>
-                <SettingsView />
+                <SettingsView user={user} currentOrg={validOrg} database={context?.database} />
               </Suspense>
             </div>
           )}
@@ -172,7 +256,7 @@ export default function App() {
             </p>
             <div className="flex items-center space-x-4 text-zinc-600 text-[11px]">
               <a
-                href="https://github.com/revterm"
+                href="https://github.com/Talalilyas1208/saas-revenue-intelligence"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-black transition-colors"
@@ -208,6 +292,9 @@ export default function App() {
 
       <Suspense fallback={null}>
         <LicenseModal />
+      </Suspense>
+      <Suspense fallback={null}>
+        <RecordPaymentModal />
       </Suspense>
     </div>
   );

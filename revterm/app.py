@@ -42,7 +42,8 @@ class RevTermApp(App[None]):
         self.config = AppConfig.load()
         self.provider = MetricsProvider(
             stripe_key=self.config.stripe_api_key,
-            use_mock=self.config.use_mock_data,
+            backend_url=self.config.backend_url,
+            auth_token=self.config.auth_token,
         )
 
     def compose(self) -> ComposeResult:
@@ -124,9 +125,14 @@ class RevTermApp(App[None]):
         is_pro = LicenseManager.verify_key(self.config.license_key)
         status_text = Text()
         status_text.append("\n  REVTERM CONFIGURATION & STATUS\n\n", style="bold #635bff")
-        status_text.append(f"  • Data Mode:   ", style="dim")
-        status_text.append("MOCK DEMO MODE (Stripe API key optional)\n", style="bold yellow")
-        status_text.append(f"  • License:     ", style="dim")
+        status_text.append("  • Data Source: ", style="dim")
+        if self.config.stripe_api_key:
+            status_text.append("LIVE STRIPE API CONNECTED\n", style="bold green")
+        elif self.config.auth_token:
+            status_text.append(f"LIVE REVTERM BACKEND ({self.config.backend_url})\n", style="bold cyan")
+        else:
+            status_text.append("NOT CONFIGURED (Set STRIPE_SECRET_KEY or REVTERM_AUTH_TOKEN)\n", style="bold yellow")
+        status_text.append("  • License:     ", style="dim")
         if is_pro:
             status_text.append("PRO TIER ACTIVATED (All Features Unlocked)\n", style="bold green")
         else:

@@ -30,16 +30,8 @@ export default function RevenueChart({ data = [] }) {
   const dispatch = useDispatch();
   const { dateRange } = useSelector((state) => state.ui);
 
-  // Filter based on active dateRange
-  let filteredData = data;
-  if (dateRange === '7D') {
-    filteredData = data.slice(-7);
-  } else if (dateRange === '30D') {
-    filteredData = data.slice(-30);
-  }
-
-  const totalPeriodRevenue = filteredData.reduce((acc, curr) => acc + Number(curr.revenue), 0);
-  const avgDaily = filteredData.length > 0 ? totalPeriodRevenue / filteredData.length : 0;
+  const totalPeriodRevenue = data.reduce((acc, curr) => acc + Number(curr.revenue), 0);
+  const avgDaily = data.length > 0 ? totalPeriodRevenue / data.length : 0;
 
   return (
     <div className="linear-card tile-hover-shadow rounded-xl p-5 relative">
@@ -49,7 +41,7 @@ export default function RevenueChart({ data = [] }) {
             Revenue Performance
           </h2>
           <p className="text-xs text-zinc-600 mt-0.5">
-            Total for period:{' '}
+            Total for {dateRange}:{' '}
             <span className="font-mono font-bold text-black tabular-nums">
               ${totalPeriodRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </span>{' '}
@@ -59,7 +51,7 @@ export default function RevenueChart({ data = [] }) {
 
         {/* Timeframe Buttons */}
         <div className="flex items-center space-x-1 p-0.5 bg-zinc-100 border border-zinc-200 rounded-lg self-start sm:self-auto">
-          {['7D', '30D', '90D', 'All'].map((tab) => (
+          {['7D', '30D', '90D', '1Y'].map((tab) => (
             <button
               key={tab}
               onClick={() => dispatch(setDateRange(tab))}
@@ -77,7 +69,7 @@ export default function RevenueChart({ data = [] }) {
 
       <div className="h-52 sm:h-64 w-full mt-4">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={filteredData} margin={{ top: 8, right: 6, left: -22, bottom: 0 }}>
+          <AreaChart data={data} margin={{ top: 8, right: 6, left: -22, bottom: 0 }}>
             <defs>
               <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.25} />
@@ -91,6 +83,7 @@ export default function RevenueChart({ data = [] }) {
               fontSize={10}
               tickLine={false}
               axisLine={false}
+              minTickGap={20}
               tickFormatter={(val) => {
                 const parts = val.split('-');
                 return parts.length === 3 ? `${parts[1]}/${parts[2]}` : val;
